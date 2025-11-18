@@ -5,9 +5,10 @@ import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.input.KeyInput;
+import net.minecraft.data.Main;
 import net.minecraft.text.Text;
 import schrumbo.schlib.Schlib;
-import schrumbo.schlib.gui.components.Category;
+import schrumbo.schlib.gui.components.category.MainCategory;
 import schrumbo.schlib.gui.components.screenwidgets.Button;
 import schrumbo.schlib.gui.components.screenwidgets.ScreenWidget;
 import schrumbo.schlib.gui.components.screenwidgets.SearchBar;
@@ -25,9 +26,9 @@ import static schrumbo.schlib.SchlibClient.mc;
  */
 public class SchlibScreen extends Screen {
 
-    private Text title;
+    private final Text title;
     public Theme screenTheme;
-    private List<Category> categories = new ArrayList<>();
+    private List<MainCategory> categories = new ArrayList<>();
     private List<ScreenWidget> widgets = new ArrayList<>();
     private Screen hudEditorScreen;
 
@@ -52,6 +53,21 @@ public class SchlibScreen extends Screen {
     private int SEARCH_BAR_Y2;
     private int SEARCH_BAR_WIDTH;
     private int SEARCH_BAR_HEIGHT;
+
+    //categories area
+    private int CATEGORIES_WIDTH;
+    private int CATEGORIES_HEIGHT;
+    private int CATEGORIES_X;
+    private int CATEGORIES_X2;
+    private int CATEGORIES_Y;
+    private int CATEGORIES_Y2;
+
+    private int CATEGORY_START_Y;
+    private int CATEGORY_X;
+    private int CATEGORY_WIDTH;
+
+
+
 
     private static final int PADDING  = 3;
 
@@ -84,10 +100,29 @@ public class SchlibScreen extends Screen {
         super.init();
         calculatePanel();
         checkForTheme();
-        initButtons();
+        initScreenWidgets();
+        initCategories();
     }
 
-    private void initButtons(){
+    /**
+     * initializes all categories
+     */
+    private void initCategories(){
+        MainCategory testCat = MainCategory.builder()
+                .parentScreen(this)
+                .label("test")
+                .position(CATEGORY_X, CATEGORY_START_Y)
+                .width(CATEGORY_WIDTH)
+                .build();
+
+        categories.clear();
+        categories.add(testCat);
+    }
+
+    /**
+     * initializes all screen widgets
+     */
+    private void initScreenWidgets(){
         int y = TITLE_BAR_Y + PADDING;
         int currentX = TITLE_BAR_X + PADDING;
 
@@ -100,7 +135,7 @@ public class SchlibScreen extends Screen {
                 .customRenderer((context, cx, cy, width, height) -> {
                     context.drawHorizontalLine(cx + 2, cx + width - 3, cy + 4, 0xFF000000);
                 })
-                .color(0xFFfe6171)
+                .color(screenTheme.closeColor)
                 .build();
         currentX += PADDING + 9;
 
@@ -119,7 +154,7 @@ public class SchlibScreen extends Screen {
                     context.drawHorizontalLine(cx + 4, cx + 4, cy + 5, 0xFF000000);
                     context.drawHorizontalLine(cx + 6, cx + 6, cy + 5, 0xFF000000);
                 })
-                .color(0xFFb0dc82)
+                .color(screenTheme.moveHudColor)
                 .build();
 
         currentX += PADDING + 9;
@@ -135,7 +170,7 @@ public class SchlibScreen extends Screen {
                     context.drawHorizontalLine(cx + 2, cx + width - 3, cy + 4, 0xFF000000);
                     context.drawHorizontalLine(cx + 2, cx + width - 3, cy + 6, 0xFF000000);
                 })
-                .color(0xFFd3d3d3)
+                .color(screenTheme.collapseCategoriesColor)
                 .build();
 
         searchBar = SearchBar.builder()
@@ -168,6 +203,12 @@ public class SchlibScreen extends Screen {
         }
     }
 
+    private void renderCategories(DrawContext context, double mouseX, double mouseY){
+        for (var category : categories){
+            category.render(context, mouseX, mouseY);
+        }
+    }
+
     /**
      * overwrites render method from superclass, needed to draw stuff on the screen
      * @param context
@@ -180,6 +221,7 @@ public class SchlibScreen extends Screen {
         renderPanelBackground(context);
         renderTitleBar(context);
         renderWidgets(context, mouseX, mouseY);
+        renderCategories(context, mouseX, mouseY);
     }
 
     /**
@@ -198,6 +240,11 @@ public class SchlibScreen extends Screen {
     public boolean mouseClicked(Click click, boolean doubled) {
         for(ScreenWidget widget : widgets){
             if(widget.mouseClicked(click.x(), click.y(), click.button())){
+                return true;
+            }
+        }
+        for (MainCategory category : categories){
+            if (category.mouseClicked(click)){
                 return true;
             }
         }
@@ -249,12 +296,26 @@ public class SchlibScreen extends Screen {
         PANEL_HEIGHT = PANEL_Y2 - PANEl_Y;
         PANEL_WIDTH = PANEL_X2 - PANEL_X;
 
+        //Search bar dimensions
         SEARCH_BAR_WIDTH = PANEL_WIDTH / 4;
         SEARCH_BAR_X = ((PANEL_WIDTH / 8) * 3) + PANEL_X;
         SEARCH_BAR_X2 = SEARCH_BAR_X + SEARCH_BAR_WIDTH;
         SEARCH_BAR_Y = TITLE_BAR_Y + PADDING - 1;
         SEARCH_BAR_Y2 = TITLE_BAR_Y2 - PADDING + 1;
         SEARCH_BAR_HEIGHT = SEARCH_BAR_Y2 - SEARCH_BAR_Y;
+
+        //category area dimensions;
+        CATEGORIES_X = PANEL_X + PADDING;
+        CATEGORIES_WIDTH = PANEL_WIDTH / 4 - 2 * PADDING;
+        CATEGORIES_X2 = CATEGORIES_X + CATEGORIES_WIDTH;
+        CATEGORIES_Y = PANEl_Y + PADDING;
+        CATEGORIES_HEIGHT = PANEL_HEIGHT - 2 * PADDING;
+        CATEGORIES_Y2 = CATEGORIES_Y + CATEGORIES_HEIGHT;
+
+        //category widget positions
+        CATEGORY_START_Y = CATEGORIES_Y + PADDING;
+        CATEGORY_X = CATEGORIES_X + PADDING;
+        CATEGORY_WIDTH = (CATEGORIES_X2 - PADDING) - (CATEGORIES_X + PADDING);
     }
 
     /**
@@ -289,7 +350,7 @@ public class SchlibScreen extends Screen {
     public static class SchlibScreenBuilder{
         private Text title;
         private Theme customTheme;
-        private List<Category> categories = new ArrayList<>();
+        private List<MainCategory> categories = new ArrayList<>();
         private Screen hudEditorScreen;
 
         private SchlibScreenBuilder(Text title){
@@ -325,7 +386,7 @@ public class SchlibScreen extends Screen {
          * @param category
          * @return
          */
-        public SchlibScreenBuilder addCategory(Category category){
+        public SchlibScreenBuilder addCategory(MainCategory category){
             categories.add(category);
             return this;
         }
@@ -356,7 +417,7 @@ public class SchlibScreen extends Screen {
          * gets all categories of a screen
          * @return
          */
-        List<Category> getCategories(){
+        List<MainCategory> getCategories(){
             return categories;
         }
     }
