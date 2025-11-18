@@ -1,14 +1,15 @@
 package schrumbo.schlib.gui.components.screenwidgets;
 
 import net.minecraft.client.gui.DrawContext;
+import schrumbo.schlib.gui.SchlibScreen;
 
 public abstract class ScreenWidget {
-    protected static int x;
-    protected static int y;
-    protected static int width;
-    protected static int height;
-    protected static String label = "";
-    protected static boolean hovering;
+    protected int x;
+    protected int y;
+    protected int width;
+    protected int height;
+    protected String label;
+    protected SchlibScreen parent;
 
     protected ScreenWidget(Builder<?> builder){
         x = builder.x;
@@ -16,6 +17,7 @@ public abstract class ScreenWidget {
         width = builder.width;
         height = builder.height;
         label = builder.label;
+        parent = builder.parentScreen;
     }
 
     /**
@@ -39,7 +41,7 @@ public abstract class ScreenWidget {
      * @param mouseY
      * @return
      */
-    public static boolean isHovered(double mouseX, double mouseY){
+    public boolean isHovered(double mouseX, double mouseY){
         return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
     }
 
@@ -51,6 +53,7 @@ public abstract class ScreenWidget {
         protected int width = 9;
         protected int height = 9;
         protected String label = "";
+        protected SchlibScreen parentScreen;
 
         public T position(int x, int y){
             this.x = x;
@@ -69,7 +72,22 @@ public abstract class ScreenWidget {
             return self();
         }
 
+        public T parentScreen(SchlibScreen screen) {
+            this.parentScreen = screen;
+            return self();
+        }
+
         protected abstract T self();
         public abstract ScreenWidget build();
+    }
+
+    public String getLabel(){
+        return label;
+    }
+    public int getX(){
+        return x;
+    }
+    public int getY(){
+        return y;
     }
 }

@@ -27,7 +27,7 @@ public class GuiKeybind {
 
             if(configKey.wasPressed()){
                 SchlibScreen screen = SchlibScreen.SchlibScreenBuilder
-                        .create(Text.literal("SCHLIB"))
+                        .create(Text.literal(""))
                         .withTheme(SchlibClient.theme)
                         .build();
 

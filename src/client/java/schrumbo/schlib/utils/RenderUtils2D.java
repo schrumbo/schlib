@@ -15,15 +15,16 @@ public class RenderUtils2D {
      * @param lightBorderColor top and left corner
      */
     public static void drawFancyBox(DrawContext context, int x, int y, int x2, int y2, int mainColor, int darkBorderColor, int lightBorderColor){
-        var matrices = context.getMatrices();
         context.fill(x, y, x2, y2, mainColor);
-        context.drawVerticalLine(x2, y - 1, y2, darkBorderColor);
-        context.drawHorizontalLine(x, x2, y2 -1, darkBorderColor);
+        context.drawVerticalLine(x2 - 1, y - 1, y2, darkBorderColor);
+        context.drawHorizontalLine(x, x2 - 1, y2 -1, darkBorderColor);
 
-        context.drawHorizontalLine(x, x2, y - 1, lightBorderColor);
+        context.drawHorizontalLine(x, x2 - 2, y, lightBorderColor);
         context.drawVerticalLine(x, y - 1, y2, lightBorderColor);
 
     }
+
+
 
 
 

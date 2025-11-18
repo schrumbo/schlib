@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "schlib",
+	"version": "${version}",
+	"name": "schlib",
+	"description": "Config Screen Library",
+	"authors": [
+		"schrumbo"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/user/schrumbo",
+		"sources": "https://github.com/schrumbo/schlib"
+	},
+	"license": "AGPL-3.0",
+	"icon": "assets/schlib/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"main": [
+			"schrumbo.schlib.Schlib"
+		],
+		"client": [
+			"schrumbo.schlib.SchlibClient"
+		]
+	},
+	"mixins": [
+		"schlib.mixins.json",
+		{
+			"config": "schlib.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.17.3",
+		"minecraft": "~1.21.10",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
