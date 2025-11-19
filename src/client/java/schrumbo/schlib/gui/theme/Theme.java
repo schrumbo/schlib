@@ -6,9 +6,13 @@ public class Theme {
     public int darkBorderColor = 0xFF494d64;
     public int lightBorderColor = 0xFF8087a2;
     public int textColor = 0xFFcad3f5;
+    public int selectedTextColor = 0xFFf5bde6;
 
     //buttons
     public int closeColor = 0xFFd20f39;
     public int moveHudColor = 0xFF04a5e5;
     public int collapseCategoriesColor = 0xFFeff1f5;
+
+    public int widgetEnabledColor = 0xFF00a86b;
+    public int widgetDisabledColor = 0xFFff0028;
 }

@@ -12,6 +12,7 @@ import schrumbo.schlib.gui.components.category.SubCategory;
 import schrumbo.schlib.gui.components.screenwidgets.Button;
 import schrumbo.schlib.gui.components.screenwidgets.ScreenWidget;
 import schrumbo.schlib.gui.components.screenwidgets.SearchBar;
+import schrumbo.schlib.gui.components.widget.Widget;
 import schrumbo.schlib.gui.theme.Theme;
 import schrumbo.schlib.utils.RenderUtils2D;
 
@@ -32,6 +33,8 @@ public class SchlibScreen extends Screen {
     private List<ScreenWidget> widgets = new ArrayList<>();
     private Screen hudEditorScreen;
 
+    private MainCategory selectedMainCategory;
+
 
     //Base panel dimensions
     private static final int TITLE_BAR_HEIGHT = 15;
@@ -41,7 +44,7 @@ public class SchlibScreen extends Screen {
     private int TITLE_BAR_Y2;
 
     private int PANEL_X;
-    private int PANEl_Y;
+    private int PANEL_Y;
     private int PANEL_X2;
     private int PANEL_Y2;
     private int PANEL_WIDTH;
@@ -56,16 +59,29 @@ public class SchlibScreen extends Screen {
 
     //categories area
     private int CATEGORIES_WIDTH;
-    private int CATEGORIES_HEIGHT;
     private int CATEGORIES_X;
     private int CATEGORIES_X2;
-    private int CATEGORIES_Y;
-    private int CATEGORIES_Y2;
 
+    //content y - same for all
+    private int CONTENT_Y;
+    private int CONTENT_Y2;
+    private int CONTENT_HEIGHT;
+
+    //CATEGORY POSITION
     private int CATEGORY_START_Y;
     private int CATEGORY_X;
     private int CATEGORY_WIDTH;
 
+    //WIDGET AREA
+    private int WIDGETS_WIDTH;
+    private int WIDGETS_HEIGHT;
+    private int WIDGETS_X;
+    private int WIDGETS_X2;
+
+    //WIDGET POSITION
+    private int WIDGET_START_Y;
+    private int WIDGET_X;
+    private int WIDGET_WIDTH;
 
 
 
@@ -97,10 +113,7 @@ public class SchlibScreen extends Screen {
 
         //set parent screen to pass the theme
         for (MainCategory category : categories) {
-            category.parent = this;
-            for (SubCategory subCategory : category.subCategories){
-                subCategory.parent = this;
-            }
+            category.setParentScreen(this);
         }
 
         checkForTheme();
@@ -112,7 +125,10 @@ public class SchlibScreen extends Screen {
         calculatePanel();
         checkForTheme();
         initScreenWidgets();
+        selectedMainCategory = categories.getFirst();
         positionCategories();
+        positionWidgets();
+
     }
 
 
@@ -215,6 +231,60 @@ public class SchlibScreen extends Screen {
     }
 
     /**
+     * sets the position of all categories (and their children)
+     */
+    private void positionCategories() {
+        int currentY = CATEGORY_START_Y;
+        for (MainCategory category : categories) {
+            category.setPosition(CATEGORY_X, currentY);
+            category.setWidth(CATEGORY_WIDTH);
+            currentY += category.getTotalHeight();
+        }
+    }
+
+    /**
+     * renders the widgets of the currently selected category
+     * @param context
+     * @param mouseX
+     * @param mouseY
+     */
+    private void renderWidgets(DrawContext context, double mouseX, double mouseY){
+        if (selectedMainCategory.getWidgets() == null)return;
+        if (selectedMainCategory.getWidgets().isEmpty())return;
+        if (getFilteredWidgets().isEmpty())return;
+
+        for (var widget : getFilteredWidgets()){
+            positionWidgets();
+            widget.render(context, mouseX, mouseY);
+        }
+    }
+
+    private void positionWidgets(){
+        int currentY = WIDGET_START_Y;
+        for (var widget : getFilteredWidgets()){
+            widget.setPosition(WIDGET_X, currentY);
+            widget.setWidth(WIDGETS_WIDTH);
+            currentY += widget.getHeight() + PADDING;
+        }
+    }
+
+    /**
+     * gets a list of all widgets in the currently selected category which are matching the search results
+     * @return
+     */
+    private List<Widget> getFilteredWidgets(){
+        List<Widget> filtered = new ArrayList<>();
+        if (searchBar.getText().isEmpty())return selectedMainCategory.getWidgets();
+
+        for (var widget : selectedMainCategory.getWidgets()){
+            if (widget.getLabel().contains(searchBar.getText())){
+                filtered.add(widget);
+            }
+        }
+        return filtered;
+    }
+
+    /**
      * overwrites render method from superclass, needed to draw stuff on the screen
      * @param context
      * @param mouseX
@@ -227,6 +297,7 @@ public class SchlibScreen extends Screen {
         renderTitleBar(context);
         renderScreenWidgets(context, mouseX, mouseY);
         renderCategories(context, mouseX, mouseY);
+        renderWidgets(context, mouseX, mouseY);
     }
 
     /**
@@ -253,15 +324,27 @@ public class SchlibScreen extends Screen {
                 return true;
             }
         }
+        for (var widget : getFilteredWidgets()){
+            if (widget.mouseClicked(click)){
+                return true;
+            }
+        }
         return false;
     }
+
+    //TODO
+    @Override
+    public boolean mouseDragged(Click click, double offsetX, double offsetY){
+        return false;
+    }
+
 
 
     /**
      * renders panel Background
      */
     private void renderPanelBackground(DrawContext context){
-        RenderUtils2D.drawFancyBox(context, PANEL_X, PANEl_Y, PANEL_X2, PANEL_Y2, screenTheme.baseBackgroundColor, screenTheme.darkBorderColor, screenTheme.lightBorderColor);
+        RenderUtils2D.drawFancyBox(context, PANEL_X, PANEL_Y, PANEL_X2, PANEL_Y2, screenTheme.baseBackgroundColor, screenTheme.darkBorderColor, screenTheme.lightBorderColor);
     }
 
     /**
@@ -288,17 +371,19 @@ public class SchlibScreen extends Screen {
 
     /**
      * calculates the panel dimensions
+     * TODO split up in different method for better readability
      */
     private void calculatePanel(){
         TITLE_BAR_X2 = mc.getWindow().getScaledWidth() - 10;
         TITLE_BAR_Y2 = TITLE_BAR_Y + TITLE_BAR_HEIGHT;
 
+        //'canvas' size
         PANEL_X = TITLE_BAR_X;
         PANEL_X2 = mc.getWindow().getScaledWidth() - 10;
-        PANEl_Y = TITLE_BAR_Y2;
+        PANEL_Y = TITLE_BAR_Y2;
         PANEL_Y2 = mc.getWindow().getScaledHeight() - 10;
 
-        PANEL_HEIGHT = PANEL_Y2 - PANEl_Y;
+        PANEL_HEIGHT = PANEL_Y2 - PANEL_Y;
         PANEL_WIDTH = PANEL_X2 - PANEL_X;
 
         //Search bar dimensions
@@ -309,31 +394,34 @@ public class SchlibScreen extends Screen {
         SEARCH_BAR_Y2 = TITLE_BAR_Y2 - PADDING + 1;
         SEARCH_BAR_HEIGHT = SEARCH_BAR_Y2 - SEARCH_BAR_Y;
 
-        //category area dimensions;
+        //content height and y
+        CONTENT_Y = PANEL_Y + PADDING;
+        CONTENT_HEIGHT = PANEL_HEIGHT - 2 * PADDING;
+        CONTENT_Y2 = CONTENT_Y + CONTENT_HEIGHT;
+
+        //category area dimensions
         CATEGORIES_X = PANEL_X + PADDING;
         CATEGORIES_WIDTH = PANEL_WIDTH / 4 - 2 * PADDING;
         CATEGORIES_X2 = CATEGORIES_X + CATEGORIES_WIDTH;
-        CATEGORIES_Y = PANEl_Y + PADDING;
-        CATEGORIES_HEIGHT = PANEL_HEIGHT - 2 * PADDING;
-        CATEGORIES_Y2 = CATEGORIES_Y + CATEGORIES_HEIGHT;
 
         //category widget positions
-        CATEGORY_START_Y = CATEGORIES_Y + PADDING;
+        CATEGORY_START_Y = CONTENT_Y + PADDING;
         CATEGORY_X = CATEGORIES_X + PADDING;
         CATEGORY_WIDTH = (CATEGORIES_X2 - PADDING) - (CATEGORIES_X + PADDING);
+
+        //widget area dimensions
+        WIDGETS_X = CATEGORIES_X2 + PADDING;
+        WIDGETS_WIDTH = PANEL_WIDTH / 2 - 2 * PADDING;
+        WIDGETS_X2 = WIDGETS_X + WIDGET_WIDTH;
+
+        //widget positions
+        WIDGET_START_Y = CONTENT_Y + PADDING;
+        WIDGET_X = WIDGETS_X + PADDING;
+        WIDGET_WIDTH = (WIDGETS_X2 - PADDING) - (WIDGETS_X + PADDING);
+
     }
 
-    /**
-     * sets the position of all categories (and their children)
-     */
-    private void positionCategories() {
-        int currentY = CATEGORY_START_Y;
-        for (MainCategory category : categories) {
-            category.setPosition(CATEGORY_X, currentY);
-            category.setWidth(CATEGORY_WIDTH);
-            currentY += category.getTotalHeight();
-        }
-    }
+
 
     /**
      * checks if a theme is applied, if not throws an error
@@ -445,5 +533,23 @@ public class SchlibScreen extends Screen {
      */
     public Theme getTheme() {
         return screenTheme;
+    }
+
+    /**
+     * sets the currently selected main category
+     * @param category
+     */
+    public void setSelectedMainCategory(MainCategory category){
+        selectedMainCategory = category;
+    }
+
+
+    /**
+     * gets the screens selected category
+     * currently only used for debugging
+     * @return category which is selected
+     */
+    public MainCategory getSelectedMainCategory(){
+        return selectedMainCategory;
     }
 }

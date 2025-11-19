@@ -3,6 +3,7 @@ package schrumbo.schlib.gui.components.category;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import schrumbo.schlib.Schlib;
+import schrumbo.schlib.gui.SchlibScreen;
 import schrumbo.schlib.gui.components.widget.Widget;
 import schrumbo.schlib.gui.theme.Theme;
 import schrumbo.schlib.utils.RenderUtils2D;
@@ -27,16 +28,25 @@ public class MainCategory extends Category{
         for (var subCategory : subCategories){
             subCategory.parentCategory = this;
         }
+        for (var widget : widgets){
+            widget.parentCategory = this;
+        }
     }
 
 
     @Override
     public void render(DrawContext context, double mouseX, double mouseY) {
-        Theme screenTheme = parent.getTheme();
+        Theme screenTheme = parentScreen.getTheme();
         int mainColor = isHovered(mouseX, mouseY) ? screenTheme.baseBackgroundColor : screenTheme.componentBackgroundColor;
         RenderUtils2D.drawFancyBox(context, x, y, x + width, y + height, mainColor, screenTheme.darkBorderColor, screenTheme.lightBorderColor);
 
-        int textColor = screenTheme.textColor;
+        if (parentScreen.getSelectedMainCategory() != this){
+            expanded = false;
+        }else{
+            expanded = true;
+        }
+
+        int textColor = expanded ? screenTheme.selectedTextColor : screenTheme.textColor;
         //Indicator kinda fat
         int textX = x + 4 * PADDING;
         int textY = y + height / 2 - mc.textRenderer.fontHeight / 2;
@@ -71,6 +81,10 @@ public class MainCategory extends Category{
     @Override
     public boolean mouseClicked(Click click) {
         if (!isHovered(click.x(), click.y()))return false;
+        if (!expanded){
+            parentScreen.setSelectedMainCategory(this);
+            Schlib.LOGGER.info(parentScreen.getSelectedMainCategory().label);
+        }
         expanded = !expanded;
         return true;
     }
@@ -89,8 +103,6 @@ public class MainCategory extends Category{
                 subCategory.render(context, mouseX, mouseY);
                 currentY += subCategory.height;
             }
-
-            //TODO RENDER WIDGETS MAYBE
         }
     }
 
@@ -106,6 +118,22 @@ public class MainCategory extends Category{
             total += subCategory.height;
         }
         return total;
+    }
+
+    /**
+     * sets parent screen for all widgets and sub categories of this main category
+     * @param screen
+     */
+    public void setParentScreen(SchlibScreen screen) {
+        this.parentScreen = screen;
+
+        for (Widget widget : widgets) {
+            widget.parentScreen = screen;
+        }
+
+        for (SubCategory subCategory : subCategories) {
+            subCategory.parentScreen = screen;
+        }
     }
 
     /**
@@ -135,6 +163,15 @@ public class MainCategory extends Category{
             subCategory.updatePositionFromParent();
         }
     }
+
+    /**
+     * gets all the widgets in the category
+     * @return
+     */
+    public List<Widget> getWidgets(){
+        return widgets;
+    }
+
 
 
     public static class Builder extends Category.Builder<Builder> {

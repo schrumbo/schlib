@@ -2,7 +2,6 @@ package schrumbo.schlib.gui.components.category;
 
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
-import schrumbo.schlib.Schlib;
 import schrumbo.schlib.gui.components.widget.Widget;
 import schrumbo.schlib.gui.theme.Theme;
 import schrumbo.schlib.utils.RenderUtils2D;
@@ -16,6 +15,10 @@ public class SubCategory extends Category{
     protected SubCategory(Builder builder){
         super(builder);
         widgets = builder.widgets;
+        for (var widget : widgets){
+            widget.parentScreen = parentScreen;
+            widget.parentCategory = this;
+        }
     }
 
     /**
@@ -23,8 +26,8 @@ public class SubCategory extends Category{
      * already subtracts the offset position
      */
     protected void updatePositionFromParent() {
-        this.x = parentCategory.x + 15;
-        this.width = parentCategory.width - 15;
+        this.x = parentCategory.x  + 9;
+        this.width = parentCategory.width - 9;
     }
 
     public void setY(int y) {
@@ -33,31 +36,19 @@ public class SubCategory extends Category{
 
     @Override
     public void render(DrawContext context, double mouseX, double mouseY) {
-        Theme screenTheme = parent.getTheme();
+        Theme screenTheme = parentScreen.getTheme();
         int mainColor = isHovered(mouseX, mouseY) ? screenTheme.baseBackgroundColor : screenTheme.componentBackgroundColor;
         RenderUtils2D.drawFancyBox(context, x, y, x + width, y + height, mainColor, screenTheme.darkBorderColor, screenTheme.lightBorderColor);
 
         int textColor = screenTheme.textColor;
         int textX = x + 3;
-        int textY = y + height / 2 - parent.getTextRenderer().fontHeight / 2;
-        context.drawText(parent.getTextRenderer(), label, textX, textY, textColor, true);
+        int textY = y + height / 2 - parentScreen.getTextRenderer().fontHeight / 2;
+        context.drawText(parentScreen.getTextRenderer(), label, textX, textY, textColor, true);
     }
 
     @Override
     public boolean mouseClicked(Click click) {
         return false;
-    }
-
-    /**
-     * same as in base class but width the modified width and x coordinate
-     * @param mouseX
-     * @param mouseY
-     * @return
-     */
-    @Override
-    public boolean isHovered(double mouseX, double mouseY) {
-
-        return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
     }
 
 
@@ -81,19 +72,6 @@ public class SubCategory extends Category{
             if (widgets != null){
                 this.widgets.addAll(widgets);
             }
-            return self();
-        }
-        @Deprecated
-        @Override
-        public Builder position(int x, int y) {
-            Schlib.LOGGER.warn("position() is not supported for SubCategory and will be ignored");
-            return self();
-        }
-
-        @Deprecated
-        @Override
-        public Builder width(int width) {
-            Schlib.LOGGER.warn("width() is not supported for SubCategory and will be ignored");
             return self();
         }
 
