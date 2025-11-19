@@ -29,7 +29,7 @@ public class MainCategory extends Category{
             subCategory.parentCategory = this;
         }
         for (var widget : widgets){
-            widget.parentCategory = this;
+            widget.setParentCategory(this);
         }
     }
 
@@ -40,20 +40,36 @@ public class MainCategory extends Category{
         int mainColor = isHovered(mouseX, mouseY) ? screenTheme.baseBackgroundColor : screenTheme.componentBackgroundColor;
         RenderUtils2D.drawFancyBox(context, x, y, x + width, y + height, mainColor, screenTheme.darkBorderColor, screenTheme.lightBorderColor);
 
-        if (parentScreen.getSelectedMainCategory() != this){
-            expanded = false;
-        }else{
+        if (parentScreen.selectedCategory() == this || checkIfSelectedIsChild()){
             expanded = true;
+        } else {
+            expanded = false;
         }
 
         int textColor = expanded ? screenTheme.selectedTextColor : screenTheme.textColor;
-        //Indicator kinda fat
         int textX = x + 4 * PADDING;
         int textY = y + height / 2 - mc.textRenderer.fontHeight / 2;
 
         context.drawText(mc.textRenderer, label, textX, textY, textColor, true);
         drawIndicator(context);
         renderSubCategories(context, mouseX, mouseY);
+    }
+
+    /**
+     * checks if the parent screen selected category is a child category of this category
+     * @return true if is child
+     */
+    private boolean checkIfSelectedIsChild(){
+        Category selected = parentScreen.selectedCategory();
+
+        if (selected == null) return false;
+        if (selected == this) return true;
+
+        if (selected instanceof SubCategory) {
+            return subCategories.contains(selected);
+        }
+
+        return false;
     }
 
 
@@ -82,10 +98,13 @@ public class MainCategory extends Category{
     public boolean mouseClicked(Click click) {
         if (!isHovered(click.x(), click.y()))return false;
         if (!expanded){
-            parentScreen.setSelectedMainCategory(this);
-            Schlib.LOGGER.info(parentScreen.getSelectedMainCategory().label);
+            expanded = true;
+        } else{
+            expanded = false;
         }
-        expanded = !expanded;
+        parentScreen.setSelectedCategroy(this);
+        Schlib.LOGGER.info(parentScreen.selectedCategory().label);
+
         return true;
     }
 
@@ -128,10 +147,13 @@ public class MainCategory extends Category{
         this.parentScreen = screen;
 
         for (Widget widget : widgets) {
-            widget.parentScreen = screen;
+            widget.setParentScreen(screen);
         }
 
         for (SubCategory subCategory : subCategories) {
+            for (var widget : subCategory.getWidgets()){
+                widget.setParentScreen(screen);
+            }
             subCategory.parentScreen = screen;
         }
     }
@@ -172,11 +194,18 @@ public class MainCategory extends Category{
         return widgets;
     }
 
+    /**
+     * gets all sub categories
+     * @return
+     */
+    public List<SubCategory> getSubCategories(){
+        return subCategories;
+    }
+
 
 
     public static class Builder extends Category.Builder<Builder> {
         protected final List<SubCategory> subCategories = new ArrayList<>();
-        protected final List<Widget> widgets = new ArrayList<>();
 
         public Builder addSubCategory(SubCategory subCategory) {
             if (subCategory != null) {
@@ -199,26 +228,6 @@ public class MainCategory extends Category{
             return self();
         }
 
-        public Builder addWidget(Widget widget) {
-            if (widget != null) {
-                this.widgets.add(widget);
-            }
-            return self();
-        }
-
-        public Builder addWidgets(Widget... widgets) {
-            for (Widget widget : widgets) {
-                addWidget(widget);
-            }
-            return self();
-        }
-
-        public Builder addWidgets(List<Widget> widgets) {
-            if (widgets != null) {
-                this.widgets.addAll(widgets);
-            }
-            return self();
-        }
 
         @Override
         protected Builder self() {

@@ -2,6 +2,7 @@ package schrumbo.schlib.gui.components.widget;
 
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import schrumbo.schlib.Schlib;
 import schrumbo.schlib.gui.components.category.MainCategory;
 import schrumbo.schlib.gui.theme.Theme;
 import schrumbo.schlib.utils.RenderUtils2D;
@@ -49,6 +50,7 @@ public class Switch extends Widget{
         int fillColor = getter.get() ? screenTheme.widgetEnabledColor : screenTheme.widgetDisabledColor;
         RenderUtils2D.drawFancyBox(context, buttonX, buttonY, buttonX2, buttonY + buttonSize, fillColor, screenTheme.darkBorderColor, screenTheme.lightBorderColor);
     }
+
 
     @Override
     public boolean mouseDragged(Click click, double offsetX, double offsetY) {

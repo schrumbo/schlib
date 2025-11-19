@@ -14,7 +14,7 @@ public abstract class Widget {
     protected int x;
     protected int y;
     protected int width;
-    protected final int height = 21;
+    protected int height = 21;
     public SchlibScreen parentScreen;
     public Category parentCategory;
 
@@ -97,6 +97,22 @@ public abstract class Widget {
      public void setWidth(int width){
         this.width = width;
      }
+
+    /**
+     * sets parent screen of a widget
+     * @param screen
+     */
+    public void setParentScreen(SchlibScreen screen) {
+        this.parentScreen = screen;
+    }
+
+    /**
+     * sets parent category of a widget
+     * @param category
+     */
+    public void setParentCategory(Category category) {
+        this.parentCategory = category;
+    }
 
     public static abstract class Builder<T extends Builder<T>>{
         protected String label;

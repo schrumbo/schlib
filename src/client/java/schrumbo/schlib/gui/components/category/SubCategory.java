@@ -2,6 +2,7 @@ package schrumbo.schlib.gui.components.category;
 
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import schrumbo.schlib.Schlib;
 import schrumbo.schlib.gui.components.widget.Widget;
 import schrumbo.schlib.gui.theme.Theme;
 import schrumbo.schlib.utils.RenderUtils2D;
@@ -34,6 +35,14 @@ public class SubCategory extends Category{
         this.y = y;
     }
 
+    /**
+     * gets the parent category of this sub category
+     * @return parent
+     */
+    public MainCategory getParentCategory(){
+        return parentCategory;
+    }
+
     @Override
     public void render(DrawContext context, double mouseX, double mouseY) {
         Theme screenTheme = parentScreen.getTheme();
@@ -48,32 +57,14 @@ public class SubCategory extends Category{
 
     @Override
     public boolean mouseClicked(Click click) {
+        if (!isHovered(click.x(), click.y()))return false;
+        parentScreen.setSelectedCategroy(this);
+        Schlib.LOGGER.info(parentScreen.selectedCategory().label);
         return false;
     }
 
 
     public static class Builder extends Category.Builder<Builder>{
-        protected final List<Widget> widgets = new ArrayList<>();
-
-
-        public Builder addWidget(Widget widget){
-            this.widgets.add(widget);
-            return self();
-        }
-
-        public Builder addWidgets(Widget... widgets){
-            for (var widget : widgets){
-                addWidget(widget);
-            }
-            return self();
-        }
-
-        public Builder addWidgets(List<Widget> widgets){
-            if (widgets != null){
-                this.widgets.addAll(widgets);
-            }
-            return self();
-        }
 
         @Override
         protected Builder self(){

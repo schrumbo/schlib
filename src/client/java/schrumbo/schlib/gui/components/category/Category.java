@@ -3,6 +3,10 @@ package schrumbo.schlib.gui.components.category;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import schrumbo.schlib.gui.SchlibScreen;
+import schrumbo.schlib.gui.components.widget.Widget;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Category {
     protected String label;
@@ -11,9 +15,11 @@ public abstract class Category {
     protected int width;
     protected final int height = 12;
     public SchlibScreen parentScreen;
+    protected List<Widget> widgets;
 
     protected Category(Builder<?> builder){
         label = builder.label;
+        widgets = builder.widgets;
     }
 
     /**
@@ -42,18 +48,51 @@ public abstract class Category {
     }
 
     /**
+     * gets the label of a category
+     * @return label
+     */
+    public String getLabel(){
+        return label;
+    }
+
+
+    /**
      * builder design pattern
      * @param <T>
      */
     public static abstract class Builder<T extends Builder<T>>{
         protected String label;
+        protected List<Widget> widgets = new ArrayList<>();
 
         public T label(String label){
             this.label = label;
             return self();
         }
+        public T addWidget(Widget widget) {
+            if (widget != null) {
+                this.widgets.add(widget);
+            }
+            return self();
+        }
 
+        public T addWidgets(Widget... widgets) {
+            for (Widget widget : widgets) {
+                addWidget(widget);
+            }
+            return self();
+        }
+
+        public T addWidgets(List<Widget> widgets) {
+            if (widgets != null) {
+                this.widgets.addAll(widgets);
+            }
+            return self();
+        }
         protected abstract T self();
         public abstract Category build();
+    }
+
+    public List<Widget> getWidgets(){
+        return widgets;
     }
 }

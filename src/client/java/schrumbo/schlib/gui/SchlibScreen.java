@@ -7,17 +7,20 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.input.KeyInput;
 import net.minecraft.text.Text;
 import schrumbo.schlib.Schlib;
+import schrumbo.schlib.gui.components.category.Category;
 import schrumbo.schlib.gui.components.category.MainCategory;
 import schrumbo.schlib.gui.components.category.SubCategory;
 import schrumbo.schlib.gui.components.screenwidgets.Button;
 import schrumbo.schlib.gui.components.screenwidgets.ScreenWidget;
 import schrumbo.schlib.gui.components.screenwidgets.SearchBar;
+import schrumbo.schlib.gui.components.widget.Group;
 import schrumbo.schlib.gui.components.widget.Widget;
 import schrumbo.schlib.gui.theme.Theme;
 import schrumbo.schlib.utils.RenderUtils2D;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static schrumbo.schlib.SchlibClient.mc;
 
@@ -33,7 +36,7 @@ public class SchlibScreen extends Screen {
     private List<ScreenWidget> widgets = new ArrayList<>();
     private Screen hudEditorScreen;
 
-    private MainCategory selectedMainCategory;
+    private Category selectedCategory;
 
 
     //Base panel dimensions
@@ -125,7 +128,7 @@ public class SchlibScreen extends Screen {
         calculatePanel();
         checkForTheme();
         initScreenWidgets();
-        selectedMainCategory = categories.getFirst();
+        selectedCategory = categories.getFirst();
         positionCategories();
         positionWidgets();
 
@@ -249,16 +252,18 @@ public class SchlibScreen extends Screen {
      * @param mouseY
      */
     private void renderWidgets(DrawContext context, double mouseX, double mouseY){
-        if (selectedMainCategory.getWidgets() == null)return;
-        if (selectedMainCategory.getWidgets().isEmpty())return;
+        if (selectedCategory.getWidgets() == null)return;
+        if (selectedCategory.getWidgets().isEmpty())return;
         if (getFilteredWidgets().isEmpty())return;
-
         for (var widget : getFilteredWidgets()){
-            positionWidgets();
             widget.render(context, mouseX, mouseY);
+            positionWidgets();
         }
     }
 
+    /**
+     * positions the widgets correctly
+     */
     private void positionWidgets(){
         int currentY = WIDGET_START_Y;
         for (var widget : getFilteredWidgets()){
@@ -274,15 +279,16 @@ public class SchlibScreen extends Screen {
      */
     private List<Widget> getFilteredWidgets(){
         List<Widget> filtered = new ArrayList<>();
-        if (searchBar.getText().isEmpty())return selectedMainCategory.getWidgets();
+        if (searchBar.getText().isEmpty())return selectedCategory.getWidgets();
 
-        for (var widget : selectedMainCategory.getWidgets()){
+        for (var widget : selectedCategory.getWidgets()){
             if (widget.getLabel().toLowerCase().contains(searchBar.getText())){
                 filtered.add(widget);
             }
         }
         return filtered;
     }
+
 
     /**
      * overwrites render method from superclass, needed to draw stuff on the screen
@@ -312,6 +318,12 @@ public class SchlibScreen extends Screen {
         this.applyBlur(context);
     }
 
+    /**
+     * handles mouse clicks
+     * @param click
+     * @param doubled
+     * @return
+     */
     @Override
     public boolean mouseClicked(Click click, boolean doubled) {
         for(ScreenWidget widget : widgets){
@@ -322,6 +334,26 @@ public class SchlibScreen extends Screen {
         for (MainCategory category : categories){
             if (category.mouseClicked(click)){
                 return true;
+            }
+        }
+        switch (selectedCategory) {
+            case MainCategory mainCategory -> {
+                for (var category : mainCategory.getSubCategories()) {
+                    if (category.mouseClicked(click)){
+                        return true;
+                    }
+                }
+            }
+            case SubCategory subCategory -> {
+                var mainCategory = subCategory.getParentCategory();
+                for (var category : mainCategory.getSubCategories()){
+                    if (category.mouseClicked(click)){
+                        return true;
+                    }
+                }
+            }
+            default -> {
+                return false;
             }
         }
         for (var widget : getFilteredWidgets()){
@@ -539,8 +571,8 @@ public class SchlibScreen extends Screen {
      * sets the currently selected main category
      * @param category
      */
-    public void setSelectedMainCategory(MainCategory category){
-        selectedMainCategory = category;
+    public void setSelectedCategroy(Category category){
+        selectedCategory = category;
     }
 
 
@@ -549,7 +581,7 @@ public class SchlibScreen extends Screen {
      * currently only used for debugging
      * @return category which is selected
      */
-    public MainCategory getSelectedMainCategory(){
-        return selectedMainCategory;
+    public Category selectedCategory(){
+        return selectedCategory;
     }
 }
