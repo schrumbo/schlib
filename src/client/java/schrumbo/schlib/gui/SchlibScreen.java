@@ -279,10 +279,26 @@ public class SchlibScreen extends Screen {
      */
     private List<Widget> getFilteredWidgets(){
         List<Widget> filtered = new ArrayList<>();
-        if (searchBar.getText().isEmpty())return selectedCategory.getWidgets();
+        if (searchBar.getText().isEmpty()) return selectedCategory.getWidgets();
 
         for (var widget : selectedCategory.getWidgets()){
+            boolean shouldAdd = false;
+
             if (widget.getLabel().toLowerCase().contains(searchBar.getText())){
+                shouldAdd = true;
+            }
+
+            if (widget instanceof Group group){
+                for (var groupWidget : group.getChildren()){
+                    if (groupWidget.getLabel().toLowerCase().contains(searchBar.getText())){
+                        shouldAdd = true;
+                        group.setExpanded(true);
+                        break;
+                    }
+                }
+            }
+
+            if (shouldAdd) {
                 filtered.add(widget);
             }
         }

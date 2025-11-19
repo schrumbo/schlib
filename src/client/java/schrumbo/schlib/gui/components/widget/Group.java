@@ -25,6 +25,13 @@ public class Group extends Widget{
         calculateExpandedHeight();
     }
 
+    public List<Widget> getChildren(){
+        return  widgets;
+    }
+
+    public void setExpanded(boolean value){
+        expanded = value;
+    }
 
     /**
      * calculates the expanded height of the group
