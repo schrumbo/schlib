@@ -25,7 +25,21 @@ public class TestCategory {
 
 
         Switch testSwitch = Switch.builder()
-                .label("Enable Test Feature")
+                .label("Berlin")
+                .value(() -> testEnabled,
+                        (newValue) -> testEnabled = newValue
+                )
+                .build();
+
+        Switch testSwitch2 = Switch.builder()
+                .label("Fokushima")
+                .value(() -> testEnabled,
+                        (newValue) -> testEnabled = newValue
+                )
+                .build();
+
+        Switch testSwitch3 = Switch.builder()
+                .label("Hiroshima")
                 .value(() -> testEnabled,
                         (newValue) -> testEnabled = newValue
                 )
@@ -40,16 +54,17 @@ public class TestCategory {
 
         SubCategory rendering = SubCategory.builder()
                 .label("Rendering")
-                .addWidget(testSwitch)
+                .addWidget(testSwitch3)
                 .build();
 
         SubCategory gameplay = SubCategory.builder()
                 .label("Gameplay")
+                .addWidget(testSwitch)
                 .build();
 
         SubCategory fartplay = SubCategory.builder()
                 .label("fart")
-                .addWidget(testSwitch)
+                .addWidget(testSwitch2)
                 .build();
 
 
@@ -59,7 +74,6 @@ public class TestCategory {
                 .addSubCategory(rendering)
                 .addSubCategory(gameplay)
                 .addWidget(testGroup)
-                .addWidget(testSwitch)
                 .addWidget(furzSwitch)
                 .build();
 
@@ -67,6 +81,7 @@ public class TestCategory {
         MainCategory hudCategory = MainCategory.builder()
                 .label("HUD")
                 .addSubCategory(fartplay)
+                .addWidget(testSwitch3)
                 .build();
 
         return SchlibScreen.SchlibScreenBuilder

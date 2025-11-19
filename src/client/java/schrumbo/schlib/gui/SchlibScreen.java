@@ -95,7 +95,7 @@ public class SchlibScreen extends Screen {
     private Button closeGUI;
     private Button moveHudElements;
     private Button collapseCategories;
-    private SearchBar searchBar;
+    public SearchBar searchBar;
 
     public SchlibScreen(Text title) {
         super(title);
@@ -275,22 +275,31 @@ public class SchlibScreen extends Screen {
 
     /**
      * gets a list of all widgets in the currently selected category which are matching the search results
-     * @return
+     * @return list of all matching widgets
      */
     private List<Widget> getFilteredWidgets(){
         List<Widget> filtered = new ArrayList<>();
-        if (searchBar.getText().isEmpty()) return selectedCategory.getWidgets();
+        String searchText = searchBar.getText().toLowerCase().trim();
+
+        if (searchText.isEmpty()) {
+            return selectedCategory.getWidgets();
+        }
+
+        Category bestMatch = findBestMatchingCategory(searchText);
+        if (bestMatch != null && bestMatch != selectedCategory) {
+            selectedCategory = bestMatch;
+        }
 
         for (var widget : selectedCategory.getWidgets()){
             boolean shouldAdd = false;
 
-            if (widget.getLabel().toLowerCase().contains(searchBar.getText())){
+            if (widget.getLabel().toLowerCase().contains(searchText)){
                 shouldAdd = true;
             }
 
             if (widget instanceof Group group){
                 for (var groupWidget : group.getChildren()){
-                    if (groupWidget.getLabel().toLowerCase().contains(searchBar.getText())){
+                    if (groupWidget.getLabel().toLowerCase().contains(searchText)){
                         shouldAdd = true;
                         group.setExpanded(true);
                         break;
@@ -303,6 +312,61 @@ public class SchlibScreen extends Screen {
             }
         }
         return filtered;
+    }
+
+    /**
+     * finds a best match based on the search
+     * @param searchText
+     * @return best match or null
+     */
+    private Category findBestMatchingCategory(String searchText) {
+        Category bestMatch = null;
+
+        for (MainCategory mainCategory : categories) {
+            if (mainCategory.getLabel().toLowerCase().contains(searchText)) {
+                if (bestMatch == null) {
+                    bestMatch = mainCategory;
+                }
+            }
+
+            for (Widget widget : mainCategory.getWidgets()) {
+                if (widget.getLabel().toLowerCase().contains(searchText)) {
+                    return mainCategory;
+                }
+
+                if (widget instanceof Group group) {
+                    for (Widget child : group.getChildren()) {
+                        if (child.getLabel().toLowerCase().contains(searchText)) {
+                            return mainCategory;
+                        }
+                    }
+                }
+            }
+
+            for (SubCategory subCategory : mainCategory.getSubCategories()) {
+                if (subCategory.getLabel().toLowerCase().contains(searchText)) {
+                    if (bestMatch == null) {
+                        bestMatch = subCategory;
+                    }
+                }
+
+                for (Widget widget : subCategory.getWidgets()) {
+                    if (widget.getLabel().toLowerCase().contains(searchText)) {
+                        return subCategory;
+                    }
+
+                    if (widget instanceof Group group) {
+                        for (Widget child : group.getChildren()) {
+                            if (child.getLabel().toLowerCase().contains(searchText)) {
+                                return subCategory;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return bestMatch;
     }
 
 

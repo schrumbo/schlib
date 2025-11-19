@@ -49,7 +49,7 @@ public class SubCategory extends Category{
         int mainColor = isHovered(mouseX, mouseY) ? screenTheme.baseBackgroundColor : screenTheme.componentBackgroundColor;
         RenderUtils2D.drawFancyBox(context, x, y, x + width, y + height, mainColor, screenTheme.darkBorderColor, screenTheme.lightBorderColor);
 
-        int textColor = screenTheme.textColor;
+        int textColor = parentScreen.selectedCategory() == this ? screenTheme.selectedTextColor : screenTheme.textColor;
         int textX = x + 3;
         int textY = y + height / 2 - parentScreen.getTextRenderer().fontHeight / 2;
         context.drawText(parentScreen.getTextRenderer(), label, textX, textY, textColor, true);
@@ -58,6 +58,7 @@ public class SubCategory extends Category{
     @Override
     public boolean mouseClicked(Click click) {
         if (!isHovered(click.x(), click.y()))return false;
+        parentScreen.searchBar.clearSearch();
         parentScreen.setSelectedCategroy(this);
         Schlib.LOGGER.info(parentScreen.selectedCategory().label);
         return false;

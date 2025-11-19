@@ -108,6 +108,13 @@ public class SearchBar extends ScreenWidget{
     }
 
     /**
+     * clears the search content
+     */
+    public void clearSearch(){
+        text = "";
+    }
+
+    /**
      * gets the position at which the user clicked onto the text
      * @param clickX
      * @return

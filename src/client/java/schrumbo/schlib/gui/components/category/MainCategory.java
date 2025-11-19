@@ -97,6 +97,7 @@ public class MainCategory extends Category{
     @Override
     public boolean mouseClicked(Click click) {
         if (!isHovered(click.x(), click.y()))return false;
+        parentScreen.searchBar.clearSearch();
         if (!expanded){
             expanded = true;
         } else{
