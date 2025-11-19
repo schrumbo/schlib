@@ -26,11 +26,7 @@ public class GuiKeybind {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
 
             if(configKey.wasPressed()){
-                SchlibScreen screen = SchlibScreen.SchlibScreenBuilder
-                        .create(Text.literal(""))
-                        .withTheme(SchlibClient.theme)
-                        .build();
-
+                var screen = TestCategory.createScreen();
                 client.setScreen(screen);
             }
         });

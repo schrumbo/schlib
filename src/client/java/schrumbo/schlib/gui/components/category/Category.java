@@ -9,8 +9,8 @@ public abstract class Category {
     protected int x;
     protected int y;
     protected int width;
-    protected final int height = 11;
-    protected SchlibScreen parent;
+    protected final int height = 12;
+    public SchlibScreen parent;
 
     protected Category(Builder<?> builder){
         x = builder.x;

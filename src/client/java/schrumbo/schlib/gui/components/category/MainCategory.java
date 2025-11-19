@@ -2,19 +2,19 @@ package schrumbo.schlib.gui.components.category;
 
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import schrumbo.schlib.Schlib;
 import schrumbo.schlib.gui.components.widget.Widget;
 import schrumbo.schlib.gui.theme.Theme;
 import schrumbo.schlib.utils.RenderUtils2D;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static schrumbo.schlib.SchlibClient.mc;
 import static schrumbo.schlib.SchlibClient.theme;
 
 public class MainCategory extends Category{
-    protected List<SubCategory> subCategories;
+    public List<SubCategory> subCategories;
     protected List<Widget> widgets;
     private boolean expanded = false;
 
@@ -24,6 +24,9 @@ public class MainCategory extends Category{
         super(builder);
         this.subCategories = new ArrayList<>(builder.subCategories);
         this.widgets = new ArrayList<>(builder.widgets);
+        for (var subCategory : subCategories){
+            subCategory.parentCategory = this;
+        }
     }
 
 
@@ -36,20 +39,14 @@ public class MainCategory extends Category{
         int textColor = screenTheme.textColor;
         //Indicator kinda fat
         int textX = x + 4 * PADDING;
-        int textY = y + height / 2 - mc.textRenderer.fontHeight / 2 + 1;
+        int textY = y + height / 2 - mc.textRenderer.fontHeight / 2;
 
         context.drawText(mc.textRenderer, label, textX, textY, textColor, true);
         drawIndicator(context);
+        renderSubCategories(context, mouseX, mouseY);
     }
 
-    /**
-     * renders the Categories SubCategories if expanded
-     */
-    private void renderSubCategories(){
-        if (expanded){
-            //TODO
-        }
-    }
+
 
     /**
      * indicates if the Category is collapsed or expanded
@@ -76,6 +73,67 @@ public class MainCategory extends Category{
         if (!isHovered(click.x(), click.y()))return false;
         expanded = !expanded;
         return true;
+    }
+
+    /**
+     * renders sub category if expanded and existent
+     * @param context
+     * @param mouseX
+     * @param mouseY
+     */
+    private void renderSubCategories(DrawContext context, double mouseX, double mouseY) {
+        if (expanded && !subCategories.isEmpty()) {
+            int currentY = y + height;
+            for (SubCategory subCategory : subCategories) {
+                subCategory.setY(currentY);
+                subCategory.render(context, mouseX, mouseY);
+                currentY += subCategory.height;
+            }
+
+            //TODO RENDER WIDGETS MAYBE
+        }
+    }
+
+    /**
+     * gets the total height of a category with expanded sub categories
+     * @return height
+     */
+    public int getTotalHeight() {
+        if (!expanded) return height;
+
+        int total = height;
+        for (SubCategory subCategory : subCategories) {
+            total += subCategory.height;
+        }
+        return total;
+    }
+
+    /**
+     * sets the categories position
+     * @param x
+     * @param y
+     */
+    public void setPosition(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    /**
+     * sets category width
+     * @param width
+     */
+    public void setWidth(int width) {
+        this.width = width;
+        updateSubCategoriesPosition();
+    }
+
+    /**
+     * updates the child categories positions
+     */
+    private void updateSubCategoriesPosition() {
+        for (SubCategory subCategory : subCategories) {
+            subCategory.updatePositionFromParent();
+        }
     }
 
 
@@ -132,9 +190,6 @@ public class MainCategory extends Category{
 
         @Override
         public MainCategory build() {
-            if (parent == null) {
-                throw new IllegalStateException("Parent screen must be set");
-            }
             return new MainCategory(this);
         }
     }

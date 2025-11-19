@@ -5,10 +5,10 @@ import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.input.KeyInput;
-import net.minecraft.data.Main;
 import net.minecraft.text.Text;
 import schrumbo.schlib.Schlib;
 import schrumbo.schlib.gui.components.category.MainCategory;
+import schrumbo.schlib.gui.components.category.SubCategory;
 import schrumbo.schlib.gui.components.screenwidgets.Button;
 import schrumbo.schlib.gui.components.screenwidgets.ScreenWidget;
 import schrumbo.schlib.gui.components.screenwidgets.SearchBar;
@@ -93,6 +93,17 @@ public class SchlibScreen extends Screen {
         }
         categories = builder.getCategories();
         hudEditorScreen = builder.getHudEditorScreen();
+        this.categories = new ArrayList<>(builder.getCategories());
+
+        //set parent screen to pass the theme
+        for (MainCategory category : categories) {
+            category.parent = this;
+            for (SubCategory subCategory : category.subCategories){
+                subCategory.parent = this;
+            }
+        }
+
+        checkForTheme();
     }
 
     @Override
@@ -101,23 +112,10 @@ public class SchlibScreen extends Screen {
         calculatePanel();
         checkForTheme();
         initScreenWidgets();
-        initCategories();
+        positionCategories();
     }
 
-    /**
-     * initializes all categories
-     */
-    private void initCategories(){
-        MainCategory testCat = MainCategory.builder()
-                .parentScreen(this)
-                .label("test")
-                .position(CATEGORY_X, CATEGORY_START_Y)
-                .width(CATEGORY_WIDTH)
-                .build();
 
-        categories.clear();
-        categories.add(testCat);
-    }
 
     /**
      * initializes all screen widgets
@@ -197,15 +195,22 @@ public class SchlibScreen extends Screen {
      * @param mouseX
      * @param mouseY
      */
-    private void renderWidgets(DrawContext context, double mouseX, double mouseY){
+    private void renderScreenWidgets(DrawContext context, double mouseX, double mouseY){
         for(ScreenWidget widget : widgets){
             widget.render(context, mouseX, mouseY);
         }
     }
 
+    /**
+     * renders the main categories
+     * @param context
+     * @param mouseX
+     * @param mouseY
+     */
     private void renderCategories(DrawContext context, double mouseX, double mouseY){
         for (var category : categories){
             category.render(context, mouseX, mouseY);
+            positionCategories();
         }
     }
 
@@ -220,7 +225,7 @@ public class SchlibScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
         renderPanelBackground(context);
         renderTitleBar(context);
-        renderWidgets(context, mouseX, mouseY);
+        renderScreenWidgets(context, mouseX, mouseY);
         renderCategories(context, mouseX, mouseY);
     }
 
@@ -316,6 +321,18 @@ public class SchlibScreen extends Screen {
         CATEGORY_START_Y = CATEGORIES_Y + PADDING;
         CATEGORY_X = CATEGORIES_X + PADDING;
         CATEGORY_WIDTH = (CATEGORIES_X2 - PADDING) - (CATEGORIES_X + PADDING);
+    }
+
+    /**
+     * sets the position of all categories (and their children)
+     */
+    private void positionCategories() {
+        int currentY = CATEGORY_START_Y;
+        for (MainCategory category : categories) {
+            category.setPosition(CATEGORY_X, currentY);
+            category.setWidth(CATEGORY_WIDTH);
+            currentY += category.getTotalHeight();
+        }
     }
 
     /**
