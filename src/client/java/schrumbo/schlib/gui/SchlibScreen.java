@@ -277,7 +277,7 @@ public class SchlibScreen extends Screen {
         if (searchBar.getText().isEmpty())return selectedMainCategory.getWidgets();
 
         for (var widget : selectedMainCategory.getWidgets()){
-            if (widget.getLabel().contains(searchBar.getText())){
+            if (widget.getLabel().toLowerCase().contains(searchBar.getText())){
                 filtered.add(widget);
             }
         }
