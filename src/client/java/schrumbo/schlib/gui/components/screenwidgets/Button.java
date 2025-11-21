@@ -23,7 +23,7 @@ public class Button extends ScreenWidget {
     @Override
     public void render(DrawContext context, double mouseX, double mouseY) {
         Theme screenTheme = parent.getTheme();
-        RenderUtils2D.drawFancyBox(context, x, y, x + width, y + height, color, screenTheme.darkBorderColor, screenTheme.lightBorderColor);
+        RenderUtils2D.drawBoxWithShadow(context, x, y, x + width, y + height, color, screenTheme.shadowColor, screenTheme.controlBackgroundColor);
         if (this.customRenderer == null)return;
         if (isHovered(mouseX, mouseY)){
             customRenderer.render(context, x, y, width, height);

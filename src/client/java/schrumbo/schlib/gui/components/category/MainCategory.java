@@ -2,7 +2,6 @@ package schrumbo.schlib.gui.components.category;
 
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
-import schrumbo.schlib.Schlib;
 import schrumbo.schlib.gui.SchlibScreen;
 import schrumbo.schlib.gui.components.widget.Widget;
 import schrumbo.schlib.gui.theme.Theme;
@@ -12,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static schrumbo.schlib.SchlibClient.mc;
-import static schrumbo.schlib.SchlibClient.theme;
 
 public class MainCategory extends Category{
     public List<SubCategory> subCategories;
@@ -37,21 +35,20 @@ public class MainCategory extends Category{
     @Override
     public void render(DrawContext context, double mouseX, double mouseY) {
         Theme screenTheme = parentScreen.getTheme();
-        int mainColor = isHovered(mouseX, mouseY) ? screenTheme.baseBackgroundColor : screenTheme.componentBackgroundColor;
-        RenderUtils2D.drawFancyBox(context, x, y, x + width, y + height, mainColor, screenTheme.darkBorderColor, screenTheme.lightBorderColor);
-
-        if (parentScreen.selectedCategory() == this || checkIfSelectedIsChild()){
-            expanded = true;
-        } else {
-            expanded = false;
+        int mainColor = isHovered(mouseX, mouseY) ? screenTheme.windowBackgroundColor : screenTheme.gridColor;
+        int selectedColor = screenTheme.windowBackgroundColor;
+        if (parentScreen.selectedCategory() == this){
+            context.fill(x, y, x + width, y + height, selectedColor);
+            RenderUtils2D.drawOutline(context, x, y, x + width, y + height, screenTheme.systemGray);
+        }else{
+            context.fill(x, y, x + width, y + height, mainColor);
         }
-
-        int textColor = expanded ? screenTheme.selectedTextColor : screenTheme.textColor;
+        int textColor =screenTheme.textColor;
         int textX = x + 4 * PADDING;
-        int textY = y + height / 2 - mc.textRenderer.fontHeight / 2;
+        int textY = y + height / 2 - mc.textRenderer.fontHeight / 2 + 1;
 
-        context.drawText(mc.textRenderer, label, textX, textY, textColor, true);
-        drawIndicator(context);
+        context.drawText(mc.textRenderer, label, textX, textY, textColor, false);
+        drawIndicator(context, x, y);
         renderSubCategories(context, mouseX, mouseY);
     }
 
@@ -76,21 +73,17 @@ public class MainCategory extends Category{
 
     /**
      * indicates if the Category is collapsed or expanded
+     *
      * @param context
      */
-    private void drawIndicator(DrawContext context) {
-        int centerX = x + PADDING + 2;
-        int centerY = y + height / 2;
-        int color = theme.textColor;
-
-        if (!expanded) {
-            context.fill(centerX + 1, centerY,     centerX + 2, centerY + 1, color);
-            context.fill(centerX,     centerY - 1, centerX + 1, centerY + 2, color);
-            context.fill(centerX - 1, centerY - 2, centerX,     centerY + 3, color);
-        } else {
-            context.fill(centerX - 1, centerY - 1, centerX + 4, centerY,     color);
-            context.fill(centerX,     centerY,     centerX + 3, centerY + 1, color);
-            context.fill(centerX + 1, centerY + 1, centerX + 2, centerY + 2, color);
+    private void drawIndicator(DrawContext context, int x, int y) {
+        Theme screenTheme = parentScreen.getTheme();
+        int indicatorSize = 4;
+        if (expanded){
+            context.drawHorizontalLine(x + PADDING, x + PADDING + indicatorSize, y + height / 2, screenTheme.textColor);
+        }else {
+            context.drawHorizontalLine(x + PADDING, x + PADDING + indicatorSize, y +  height / 2, screenTheme.textColor);
+            context.drawVerticalLine(x+ PADDING + 2, y + 3, y + height - 4, screenTheme.textColor);
         }
     }
 
@@ -98,15 +91,19 @@ public class MainCategory extends Category{
     public boolean mouseClicked(Click click) {
         if (!isHovered(click.x(), click.y()))return false;
         parentScreen.searchBar.clearSearch();
-        if (!expanded){
+        if (expanded){
+            if (parentScreen.selectedCategory() == this){
+                expanded = !expanded;
+                return true;
+            }else {
+                parentScreen.setSelectedCategroy(this);
+                return true;
+            }
+        }else{
             expanded = true;
-        } else{
-            expanded = false;
+            parentScreen.setSelectedCategroy(this);
+            return true;
         }
-        parentScreen.setSelectedCategroy(this);
-        Schlib.LOGGER.info(parentScreen.selectedCategory().label);
-
-        return true;
     }
 
     /**
@@ -201,6 +198,10 @@ public class MainCategory extends Category{
      */
     public List<SubCategory> getSubCategories(){
         return subCategories;
+    }
+
+    public boolean isExpanded(){
+        return expanded;
     }
 
 

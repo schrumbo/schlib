@@ -34,8 +34,8 @@ public class SearchBar extends ScreenWidget{
         Theme screenTheme = parent.getTheme();
 
 
-        int mainColor = isHovered(mouseX, mouseY) ? screenTheme.componentBackgroundColor : screenTheme.baseBackgroundColor;
-        RenderUtils2D.drawFancyBox(context, x, y, x + width, y + height, mainColor, screenTheme.darkBorderColor, screenTheme.lightBorderColor);
+        int mainColor = screenTheme.windowBackgroundColor;
+        context.fill( x, y, x + width, y + height, mainColor);
 
         int textColor = screenTheme.textColor;
         String display = text.isEmpty() && !focused ? "Search..." : text;
@@ -47,6 +47,9 @@ public class SearchBar extends ScreenWidget{
         context.drawText(mc.textRenderer, display, textX, textY, textColor, false);
         if (hasSelection()) {
             renderSelection(context);
+        }
+        if (focused){
+            RenderUtils2D.drawOutline(context, x, y, x + width, y + height, screenTheme.keyboardFocusColor);
         }
         if (focused && cursorVisible){
             int cursorX = textX + mc.textRenderer.getWidth(text.substring(0, Math.min(cursorPos, text.length())));

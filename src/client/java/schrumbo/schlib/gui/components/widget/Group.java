@@ -97,8 +97,8 @@ public class Group extends Widget{
     @Override
     public void render(DrawContext context, double mouseX, double mouseY) {
         Theme screenTheme = parentScreen.getTheme();
-        int mainColor = isHovered(mouseX, mouseY) ? screenTheme.baseBackgroundColor : screenTheme.componentBackgroundColor;
-        RenderUtils2D.drawFancyBox(context, x, y, x + width, y + height, mainColor, screenTheme.darkBorderColor, screenTheme.lightBorderColor);
+        int mainColor = isHovered(mouseX, mouseY) ? screenTheme.windowBackgroundColor : screenTheme.gridColor;
+        RenderUtils2D.drawBoxWithShadow(context, x, y, x + width, y + height, mainColor, screenTheme.shadowColor, screenTheme.controlBackgroundColor);
 
         int textColor = screenTheme.textColor;
         int textX = x + 3;

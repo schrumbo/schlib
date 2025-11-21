@@ -13,7 +13,7 @@ public abstract class Category {
     protected int x;
     protected int y;
     protected int width;
-    protected final int height = 12;
+    protected final int height = 13;
     public SchlibScreen parentScreen;
     protected List<Widget> widgets;
 

@@ -20,7 +20,6 @@ import schrumbo.schlib.utils.RenderUtils2D;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import static schrumbo.schlib.SchlibClient.mc;
 
@@ -85,6 +84,13 @@ public class SchlibScreen extends Screen {
     private int WIDGET_START_Y;
     private int WIDGET_X;
     private int WIDGET_WIDTH;
+
+    //MISC AREA
+    private int MISC_X;
+    private int MISC_X2;
+    private int MISC_WIDTH;
+
+
 
 
 
@@ -152,7 +158,7 @@ public class SchlibScreen extends Screen {
                 .customRenderer((context, cx, cy, width, height) -> {
                     context.drawHorizontalLine(cx + 2, cx + width - 3, cy + 4, 0xFF000000);
                 })
-                .color(screenTheme.closeColor)
+                .color(screenTheme.systemRed)
                 .build();
         currentX += PADDING + 9;
 
@@ -171,7 +177,7 @@ public class SchlibScreen extends Screen {
                     context.drawHorizontalLine(cx + 4, cx + 4, cy + 5, 0xFF000000);
                     context.drawHorizontalLine(cx + 6, cx + 6, cy + 5, 0xFF000000);
                 })
-                .color(screenTheme.moveHudColor)
+                .color(screenTheme.systemTeal)
                 .build();
 
         currentX += PADDING + 9;
@@ -187,7 +193,7 @@ public class SchlibScreen extends Screen {
                     context.drawHorizontalLine(cx + 2, cx + width - 3, cy + 4, 0xFF000000);
                     context.drawHorizontalLine(cx + 2, cx + width - 3, cy + 6, 0xFF000000);
                 })
-                .color(screenTheme.collapseCategoriesColor)
+                .color(screenTheme.systemGray)
                 .build();
 
         searchBar = SearchBar.builder()
@@ -227,6 +233,7 @@ public class SchlibScreen extends Screen {
      * @param mouseY
      */
     private void renderCategories(DrawContext context, double mouseX, double mouseY){
+        context.fill(CATEGORIES_X, CONTENT_Y, CATEGORIES_X2, CONTENT_Y2, screenTheme.gridColor);
         for (var category : categories){
             category.render(context, mouseX, mouseY);
             positionCategories();
@@ -252,6 +259,7 @@ public class SchlibScreen extends Screen {
      * @param mouseY
      */
     private void renderWidgets(DrawContext context, double mouseX, double mouseY){
+        context.fill(WIDGETS_X, CONTENT_Y, WIDGETS_X2, CONTENT_Y2, screenTheme.gridColor);
         if (selectedCategory.getWidgets() == null)return;
         if (selectedCategory.getWidgets().isEmpty())return;
         if (getFilteredWidgets().isEmpty())return;
@@ -268,7 +276,7 @@ public class SchlibScreen extends Screen {
         int currentY = WIDGET_START_Y;
         for (var widget : getFilteredWidgets()){
             widget.setPosition(WIDGET_X, currentY);
-            widget.setWidth(WIDGETS_WIDTH);
+            widget.setWidth(WIDGET_WIDTH);
             currentY += widget.getHeight() + PADDING;
         }
     }
@@ -384,6 +392,7 @@ public class SchlibScreen extends Screen {
         renderScreenWidgets(context, mouseX, mouseY);
         renderCategories(context, mouseX, mouseY);
         renderWidgets(context, mouseX, mouseY);
+        renderMisc(context);
     }
 
     /**
@@ -411,29 +420,12 @@ public class SchlibScreen extends Screen {
                 return true;
             }
         }
-        for (MainCategory category : categories){
-            if (category.mouseClicked(click)){
-                return true;
-            }
-        }
-        switch (selectedCategory) {
-            case MainCategory mainCategory -> {
-                for (var category : mainCategory.getSubCategories()) {
-                    if (category.mouseClicked(click)){
-                        return true;
-                    }
+        for (var category : categories){
+            if (category.mouseClicked(click))return true;
+            if (category.isExpanded()){
+                for (var childCategory : category.getSubCategories()){
+                    if (childCategory.mouseClicked(click))return true;
                 }
-            }
-            case SubCategory subCategory -> {
-                var mainCategory = subCategory.getParentCategory();
-                for (var category : mainCategory.getSubCategories()){
-                    if (category.mouseClicked(click)){
-                        return true;
-                    }
-                }
-            }
-            default -> {
-                return false;
             }
         }
         for (var widget : getFilteredWidgets()){
@@ -456,7 +448,7 @@ public class SchlibScreen extends Screen {
      * renders panel Background
      */
     private void renderPanelBackground(DrawContext context){
-        RenderUtils2D.drawFancyBox(context, PANEL_X, PANEL_Y, PANEL_X2, PANEL_Y2, screenTheme.baseBackgroundColor, screenTheme.darkBorderColor, screenTheme.lightBorderColor);
+        RenderUtils2D.drawBoxWithShadow(context, PANEL_X, PANEL_Y, PANEL_X2, PANEL_Y2, screenTheme.windowBackgroundColor, screenTheme.shadowColor, screenTheme.controlBackgroundColor);
     }
 
     /**
@@ -464,9 +456,14 @@ public class SchlibScreen extends Screen {
      * @param context
      */
     private void renderTitleBar(DrawContext context){
-        RenderUtils2D.drawFancyBox(context, TITLE_BAR_X, TITLE_BAR_Y, TITLE_BAR_X2, TITLE_BAR_Y2, screenTheme.componentBackgroundColor, screenTheme.darkBorderColor, screenTheme.lightBorderColor);
+        RenderUtils2D.drawBoxWithShadow(context, TITLE_BAR_X, TITLE_BAR_Y, TITLE_BAR_X2, TITLE_BAR_Y2, screenTheme.gridColor, screenTheme.shadowColor, screenTheme.controlBackgroundColor);
         renderTitle(context);
     }
+
+    private void renderMisc(DrawContext context){
+        context.fill(MISC_X, CONTENT_Y, MISC_X2, CONTENT_Y2, screenTheme.gridColor);
+    }
+
 
     /**
      * renders the title inside the Title Bar
@@ -523,13 +520,18 @@ public class SchlibScreen extends Screen {
 
         //widget area dimensions
         WIDGETS_X = CATEGORIES_X2 + PADDING;
-        WIDGETS_WIDTH = PANEL_WIDTH / 2 - 2 * PADDING;
-        WIDGETS_X2 = WIDGETS_X + WIDGET_WIDTH;
+        WIDGETS_WIDTH = PANEL_WIDTH / 2 - PADDING;
+        WIDGETS_X2 = WIDGETS_X + WIDGETS_WIDTH;
 
         //widget positions
         WIDGET_START_Y = CONTENT_Y + PADDING;
         WIDGET_X = WIDGETS_X + PADDING;
         WIDGET_WIDTH = (WIDGETS_X2 - PADDING) - (WIDGETS_X + PADDING);
+
+        //misc area
+        MISC_X2 = PANEL_X2 - PADDING;
+        MISC_WIDTH = PANEL_WIDTH / 4 - PADDING;
+        MISC_X = MISC_X2 - MISC_WIDTH;
 
     }
 

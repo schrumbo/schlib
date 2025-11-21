@@ -7,7 +7,6 @@ import schrumbo.schlib.gui.components.widget.Widget;
 import schrumbo.schlib.gui.theme.Theme;
 import schrumbo.schlib.utils.RenderUtils2D;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SubCategory extends Category{
@@ -46,13 +45,20 @@ public class SubCategory extends Category{
     @Override
     public void render(DrawContext context, double mouseX, double mouseY) {
         Theme screenTheme = parentScreen.getTheme();
-        int mainColor = isHovered(mouseX, mouseY) ? screenTheme.baseBackgroundColor : screenTheme.componentBackgroundColor;
-        RenderUtils2D.drawFancyBox(context, x, y, x + width, y + height, mainColor, screenTheme.darkBorderColor, screenTheme.lightBorderColor);
+        int parentx = parentCategory.x;
+        int mainColor = isHovered(mouseX, mouseY) ? screenTheme.windowBackgroundColor : screenTheme.gridColor;
+        int selectedColor = screenTheme.windowBackgroundColor;
+        if (parentScreen.selectedCategory() == this){
+            context.fill(x, y, x + width, y + height, selectedColor);
+            RenderUtils2D.drawOutline(context, x, y, x + width, y + height, screenTheme.systemGray);
+        }else{
+            context.fill(x, y, x + width, y + height, mainColor);
+        }
 
-        int textColor = parentScreen.selectedCategory() == this ? screenTheme.selectedTextColor : screenTheme.textColor;
+        int textColor = screenTheme.textColor;
         int textX = x + 3;
-        int textY = y + height / 2 - parentScreen.getTextRenderer().fontHeight / 2;
-        context.drawText(parentScreen.getTextRenderer(), label, textX, textY, textColor, true);
+        int textY = y + height / 2 - parentScreen.getTextRenderer().fontHeight / 2 + 1;
+        context.drawText(parentScreen.getTextRenderer(), label, textX, textY, textColor, false);
     }
 
     @Override

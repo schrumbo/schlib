@@ -2,8 +2,6 @@ package schrumbo.schlib.gui.components.widget;
 
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
-import schrumbo.schlib.Schlib;
-import schrumbo.schlib.gui.components.category.MainCategory;
 import schrumbo.schlib.gui.theme.Theme;
 import schrumbo.schlib.utils.RenderUtils2D;
 
@@ -24,8 +22,8 @@ public class Switch extends Widget{
     @Override
     public void render(DrawContext context, double mouseX, double mouseY) {
         Theme screenTheme = parentScreen.getTheme();
-        int mainColor = isHovered(mouseX, mouseY) ? screenTheme.baseBackgroundColor : screenTheme.componentBackgroundColor;
-        RenderUtils2D.drawFancyBox(context, x, y, x + width, y + height, mainColor, screenTheme.darkBorderColor, screenTheme.lightBorderColor);
+        int mainColor = isHovered(mouseX, mouseY) ? screenTheme.windowBackgroundColor : screenTheme.gridColor;
+        RenderUtils2D.drawBoxWithShadow(context, x, y, x + width, y + height, mainColor, screenTheme.shadowColor, screenTheme.controlBackgroundColor);
 
         int textColor = screenTheme.textColor;
         int textX = x + 3;
@@ -46,9 +44,10 @@ public class Switch extends Widget{
         int buttonX2 = x + width - 3;
         int buttonX = buttonX2 - buttonSize;
         int buttonY = y + height / 2 - buttonSize / 2;
+        int buttonY2 = buttonY + buttonSize;
 
-        int fillColor = getter.get() ? screenTheme.widgetEnabledColor : screenTheme.widgetDisabledColor;
-        RenderUtils2D.drawFancyBox(context, buttonX, buttonY, buttonX2, buttonY + buttonSize, fillColor, screenTheme.darkBorderColor, screenTheme.lightBorderColor);
+        int fillColor = getter.get() ? screenTheme.systemTeal : screenTheme.systemGray;
+        RenderUtils2D.drawBoxWithOutline(context, buttonX, buttonY, buttonX2, buttonY2, fillColor, screenTheme.systemYellow);
     }
 
 
