@@ -180,22 +180,6 @@ public class SchlibScreen extends Screen {
                 .color(screenTheme.systemTeal)
                 .build();
 
-        currentX += PADDING + 9;
-
-        collapseCategories = Button.builder()
-                .parentScreen(this)
-                .label("collapse categories")
-                .position(currentX, y)
-                .size(9, 9)
-                .onClick(() -> Schlib.LOGGER.error("implement categories feature"))
-                .customRenderer((context, cx, cy, width, height) -> {
-                    context.drawHorizontalLine(cx + 2, cx + width - 3, cy + 2, 0xFF000000);
-                    context.drawHorizontalLine(cx + 2, cx + width - 3, cy + 4, 0xFF000000);
-                    context.drawHorizontalLine(cx + 2, cx + width - 3, cy + 6, 0xFF000000);
-                })
-                .color(screenTheme.systemGray)
-                .build();
-
         searchBar = SearchBar.builder()
                 .parentScreen(this)
                 .position(SEARCH_BAR_X, SEARCH_BAR_Y)
@@ -208,7 +192,6 @@ public class SchlibScreen extends Screen {
         widgets.clear();
         widgets.add(closeGUI);
         widgets.add(moveHudElements);
-        widgets.add(collapseCategories);
         widgets.add(searchBar);
     }
 
@@ -296,6 +279,9 @@ public class SchlibScreen extends Screen {
         Category bestMatch = findBestMatchingCategory(searchText);
         if (bestMatch != null && bestMatch != selectedCategory) {
             selectedCategory = bestMatch;
+            if (selectedCategory instanceof SubCategory){
+                ((SubCategory) selectedCategory).getParentCategory().setExpanded(true);
+            }
         }
 
         for (var widget : selectedCategory.getWidgets()){
@@ -420,17 +406,22 @@ public class SchlibScreen extends Screen {
                 return true;
             }
         }
-        for (var category : categories){
-            if (category.mouseClicked(click))return true;
-            if (category.isExpanded()){
-                for (var childCategory : category.getSubCategories()){
-                    if (childCategory.mouseClicked(click))return true;
+
+        if (isInCategoryArea(click)){
+            for (var category : categories){
+                if (category.mouseClicked(click))return true;
+                if (category.isExpanded()){
+                    for (var childCategory : category.getSubCategories()){
+                        if (childCategory.mouseClicked(click))return true;
+                    }
                 }
             }
         }
-        for (var widget : getFilteredWidgets()){
-            if (widget.mouseClicked(click)){
-                return true;
+        if (isInWidgetArea(click)){
+            for (var widget : getFilteredWidgets()){
+                if (widget.mouseClicked(click)){
+                    return true;
+                }
             }
         }
         return false;
@@ -519,8 +510,8 @@ public class SchlibScreen extends Screen {
         CATEGORY_WIDTH = (CATEGORIES_X2 - PADDING) - (CATEGORIES_X + PADDING);
 
         //widget area dimensions
-        WIDGETS_X = CATEGORIES_X2 + PADDING;
         WIDGETS_WIDTH = PANEL_WIDTH / 2 - PADDING;
+        WIDGETS_X = CATEGORIES_X2 + PADDING;
         WIDGETS_X2 = WIDGETS_X + WIDGETS_WIDTH;
 
         //widget positions
@@ -664,5 +655,23 @@ public class SchlibScreen extends Screen {
      */
     public Category selectedCategory(){
         return selectedCategory;
+    }
+
+    /**
+     * checks if the user is clicking a inside the widgets area
+     * @param click
+     * @return true if in widgets area
+     */
+    private boolean isInWidgetArea(Click click){
+        return click.x() >= WIDGETS_X && click.x() <= WIDGETS_X2 && click.y() >= CONTENT_Y && click.y() <= CONTENT_Y2;
+    }
+
+    /**
+     * checks if the user is clicking inside the categories area
+     * @param click
+     * @return true if in categories area
+     */
+    private boolean isInCategoryArea(Click click){
+        return click.x() >= CATEGORIES_X && click.x() <= CATEGORIES_X2 && click.y() >= CONTENT_Y && click.y() <= CONTENT_Y2;
     }
 }

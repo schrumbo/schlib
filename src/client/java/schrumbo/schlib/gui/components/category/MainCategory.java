@@ -171,6 +171,10 @@ public class MainCategory extends Category{
         return expanded;
     }
 
+    public void setExpanded(boolean value){
+        expanded = value;
+    }
+
 
 
     public static class Builder extends Category.Builder<Builder> {
