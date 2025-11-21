@@ -10,14 +10,13 @@ public class RenderUtils2D {
      * @param y
      * @param x2
      * @param y2
-     * @param mainColor background color of the box
-     * @param shadowColor bottom and right border
-     * @param lightBorderColor top and left corner
+     * @param mainColor main color of the box
+     * @param shadowColor shadow color
      */
-    public static void drawBoxWithShadow(DrawContext context, int x, int y, int x2, int y2, int mainColor, int shadowColor, int lightBorderColor){
+    public static void drawBoxWithShadow(DrawContext context, int x, int y, int x2, int y2, int mainColor, int shadowColor){
         context.fill(x, y, x2, y2, mainColor);
-        context.drawVerticalLine(x2, y - 1, y2, shadowColor);
-        context.drawHorizontalLine(x, x2, y2, shadowColor);
+        context.drawVerticalLine(x2, y, y2, shadowColor);
+        context.drawHorizontalLine(x + 1, x2, y2, shadowColor);
     }
 
     /**

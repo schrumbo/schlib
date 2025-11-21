@@ -17,7 +17,6 @@ public class MainCategory extends Category{
     protected List<Widget> widgets;
     private boolean expanded = false;
 
-    private final int PADDING = 3;
 
     protected MainCategory(Builder builder) {
         super(builder);
@@ -34,42 +33,10 @@ public class MainCategory extends Category{
 
     @Override
     public void render(DrawContext context, double mouseX, double mouseY) {
-        Theme screenTheme = parentScreen.getTheme();
-        int mainColor = isHovered(mouseX, mouseY) ? screenTheme.windowBackgroundColor : screenTheme.gridColor;
-        int selectedColor = screenTheme.windowBackgroundColor;
-        if (parentScreen.selectedCategory() == this){
-            context.fill(x, y, x + width, y + height, selectedColor);
-            RenderUtils2D.drawOutline(context, x, y, x + width, y + height, screenTheme.systemGray);
-        }else{
-            context.fill(x, y, x + width, y + height, mainColor);
-        }
-        int textColor =screenTheme.textColor;
-        int textX = x + 4 * PADDING;
-        int textY = y + height / 2 - mc.textRenderer.fontHeight / 2 + 1;
-
-        context.drawText(mc.textRenderer, label, textX, textY, textColor, false);
-        drawIndicator(context, x, y);
+        super.render(context, mouseX, mouseY);
+        drawIndicator(context, x + 1, y);
         renderSubCategories(context, mouseX, mouseY);
     }
-
-    /**
-     * checks if the parent screen selected category is a child category of this category
-     * @return true if is child
-     */
-    private boolean checkIfSelectedIsChild(){
-        Category selected = parentScreen.selectedCategory();
-
-        if (selected == null) return false;
-        if (selected == this) return true;
-
-        if (selected instanceof SubCategory) {
-            return subCategories.contains(selected);
-        }
-
-        return false;
-    }
-
-
 
     /**
      * indicates if the Category is collapsed or expanded

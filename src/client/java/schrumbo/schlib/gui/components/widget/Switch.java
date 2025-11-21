@@ -13,6 +13,9 @@ public class Switch extends Widget{
     private final Supplier<Boolean> getter;
     private final Consumer<Boolean> setter;
 
+    private final int buttonHeight = 11;
+    private final int buttonWidth = 20;
+
     protected Switch(Builder builder){
         super(builder);
         this.getter = builder.getter;
@@ -21,33 +24,36 @@ public class Switch extends Widget{
 
     @Override
     public void render(DrawContext context, double mouseX, double mouseY) {
-        Theme screenTheme = parentScreen.getTheme();
-        int mainColor = isHovered(mouseX, mouseY) ? screenTheme.windowBackgroundColor : screenTheme.gridColor;
-        RenderUtils2D.drawBoxWithShadow(context, x, y, x + width, y + height, mainColor, screenTheme.shadowColor, screenTheme.controlBackgroundColor);
-
-        int textColor = screenTheme.textColor;
-        int textX = x + 3;
-        int textY = y + height / 2 - parentScreen.getTextRenderer().fontHeight / 2;
-        context.drawText(parentScreen.getTextRenderer(), label, textX, textY, textColor, true);
-        renderButton(context, mouseX, mouseY);
+        super.render(context, mouseX, mouseY);
+        renderButton(context);
     }
 
     /**
      * renders a button like thing
      * @param context
-     * @param mouseX
-     * @param mouseY
      */
-    private void renderButton(DrawContext context, double mouseX, double mouseY){
+    private void renderButton(DrawContext context){
         Theme screenTheme = parentScreen.getTheme();
-        int buttonSize = height - 6;
-        int buttonX2 = x + width - 3;
-        int buttonX = buttonX2 - buttonSize;
-        int buttonY = y + height / 2 - buttonSize / 2;
-        int buttonY2 = buttonY + buttonSize;
 
-        int fillColor = getter.get() ? screenTheme.systemTeal : screenTheme.systemGray;
-        RenderUtils2D.drawBoxWithOutline(context, buttonX, buttonY, buttonX2, buttonY2, fillColor, screenTheme.systemYellow);
+        int buttonX2 = x + width - PADDING;
+        int buttonX = buttonX2 - buttonWidth;
+        int buttonY = y + height / 2 - buttonHeight / 2;
+        int buttonY2 = buttonY + buttonHeight;
+
+        int buttonBackgroundColor = getter.get() ? screenTheme.systemTeal : screenTheme.systemGray;
+        context.fill(buttonX, buttonY, buttonX2, buttonY2, buttonBackgroundColor);
+
+        int enabledX2 = buttonX2 - 1;
+        int disabledX = buttonX + 1;
+        int knobSize = 9;
+        int knobY = buttonY + 1;
+        int knobY2 = buttonY2 - 1;
+
+        if (getter.get()){
+            context.fill(enabledX2 - knobSize, knobY, enabledX2, knobY2, screenTheme.gridColor);
+        }else{
+            context.fill(disabledX, knobY, disabledX + knobSize, knobY2, screenTheme.gridColor);
+        }
     }
 
 

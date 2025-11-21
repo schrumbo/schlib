@@ -1,7 +1,9 @@
 package schrumbo.schlib.gui.components.widget;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import schrumbo.schlib.Schlib;
 import schrumbo.schlib.gui.SchlibScreen;
 import schrumbo.schlib.gui.components.category.Category;
 import schrumbo.schlib.gui.theme.Theme;
@@ -96,18 +98,44 @@ public class Group extends Widget{
 
     @Override
     public void render(DrawContext context, double mouseX, double mouseY) {
-        Theme screenTheme = parentScreen.getTheme();
-        int mainColor = isHovered(mouseX, mouseY) ? screenTheme.windowBackgroundColor : screenTheme.gridColor;
-        RenderUtils2D.drawBoxWithShadow(context, x, y, x + width, y + height, mainColor, screenTheme.shadowColor, screenTheme.controlBackgroundColor);
-
-        int textColor = screenTheme.textColor;
-        int textX = x + 3;
-        int textY = y + height / 2 - parentScreen.getTextRenderer().fontHeight / 2;
-        context.drawText(parentScreen.getTextRenderer(), label, textX, textY, textColor, true);
+        super.render(context, mouseX, mouseY);
+        renderExpandedIndicator(context);
         if (expanded){
             for (var child : widgets){
                 child.render(context, mouseX, mouseY);
             }
+        }
+    }
+
+    /**
+     * renders something that indicates if the group is expanded or collapsed
+     * @param context
+     */
+    private void renderExpandedIndicator(DrawContext context){
+        Theme screenTheme = parentScreen.getTheme();
+        int indicatorMaxLength = 11;
+        int indicatorSize = 5;
+        int color = screenTheme.systemGray;
+
+        if (!expanded){
+            int indicatorYCollapsed = y + 4;
+            int indicatorY2Collapsed = indicatorYCollapsed + indicatorMaxLength + 1;
+            int indicatorXCollapsed = x + width - 7;
+            context.drawVerticalLine(indicatorXCollapsed, indicatorYCollapsed, indicatorY2Collapsed, color);
+            context.drawVerticalLine(indicatorXCollapsed - 1, indicatorYCollapsed + 1, indicatorY2Collapsed - 1, color);
+            context.drawVerticalLine(indicatorXCollapsed - 2, indicatorYCollapsed + 2, indicatorY2Collapsed - 2, color);
+            context.drawVerticalLine(indicatorXCollapsed - 3, indicatorYCollapsed + 3, indicatorY2Collapsed - 3, color);
+            context.drawVerticalLine(indicatorXCollapsed - 4, indicatorYCollapsed + 4, indicatorY2Collapsed - 4, color);
+            context.drawVerticalLine(indicatorXCollapsed - 5, indicatorYCollapsed + 5, indicatorY2Collapsed - 5, color);
+        }else{
+            int indicatorXCenter = x + width - 12;
+            int indicatorYExpanded = y + 8;
+            context.drawHorizontalLine(indicatorXCenter - 5, indicatorXCenter + 5, indicatorYExpanded, color);
+            context.drawHorizontalLine(indicatorXCenter - 4, indicatorXCenter + 4, indicatorYExpanded + 1, color);
+            context.drawHorizontalLine(indicatorXCenter - 3, indicatorXCenter + 3, indicatorYExpanded + 2, color);
+            context.drawHorizontalLine(indicatorXCenter - 2, indicatorXCenter + 2, indicatorYExpanded + 3, color);
+            context.drawHorizontalLine(indicatorXCenter - 1, indicatorXCenter + 1, indicatorYExpanded + 4, color);
+            context.drawHorizontalLine(indicatorXCenter, indicatorXCenter, indicatorYExpanded + 5, color);
         }
     }
 

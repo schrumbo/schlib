@@ -448,7 +448,7 @@ public class SchlibScreen extends Screen {
      * renders panel Background
      */
     private void renderPanelBackground(DrawContext context){
-        RenderUtils2D.drawBoxWithShadow(context, PANEL_X, PANEL_Y, PANEL_X2, PANEL_Y2, screenTheme.windowBackgroundColor, screenTheme.shadowColor, screenTheme.controlBackgroundColor);
+        RenderUtils2D.drawBoxWithShadow(context, PANEL_X, PANEL_Y - TITLE_BAR_HEIGHT, PANEL_X2, PANEL_Y2, screenTheme.windowBackgroundColor, screenTheme.shadowColor);
     }
 
     /**
@@ -456,7 +456,7 @@ public class SchlibScreen extends Screen {
      * @param context
      */
     private void renderTitleBar(DrawContext context){
-        RenderUtils2D.drawBoxWithShadow(context, TITLE_BAR_X, TITLE_BAR_Y, TITLE_BAR_X2, TITLE_BAR_Y2, screenTheme.gridColor, screenTheme.shadowColor, screenTheme.controlBackgroundColor);
+        context.fill(TITLE_BAR_X, TITLE_BAR_Y, TITLE_BAR_X2, TITLE_BAR_Y2, screenTheme.gridColor);
         renderTitle(context);
     }
 
@@ -532,7 +532,6 @@ public class SchlibScreen extends Screen {
         MISC_X2 = PANEL_X2 - PADDING;
         MISC_WIDTH = PANEL_WIDTH / 4 - PADDING;
         MISC_X = MISC_X2 - MISC_WIDTH;
-
     }
 
 

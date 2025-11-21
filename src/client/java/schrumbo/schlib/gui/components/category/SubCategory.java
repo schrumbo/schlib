@@ -30,6 +30,11 @@ public class SubCategory extends Category{
         this.width = parentCategory.width - 9;
     }
 
+    @Override
+    public void render(DrawContext context, double mouseX, double mouseY) {
+        super.render(context, mouseX, mouseY);
+    }
+
     public void setY(int y) {
         this.y = y;
     }
@@ -43,30 +48,10 @@ public class SubCategory extends Category{
     }
 
     @Override
-    public void render(DrawContext context, double mouseX, double mouseY) {
-        Theme screenTheme = parentScreen.getTheme();
-        int parentx = parentCategory.x;
-        int mainColor = isHovered(mouseX, mouseY) ? screenTheme.windowBackgroundColor : screenTheme.gridColor;
-        int selectedColor = screenTheme.windowBackgroundColor;
-        if (parentScreen.selectedCategory() == this){
-            context.fill(x, y, x + width, y + height, selectedColor);
-            RenderUtils2D.drawOutline(context, x, y, x + width, y + height, screenTheme.systemGray);
-        }else{
-            context.fill(x, y, x + width, y + height, mainColor);
-        }
-
-        int textColor = screenTheme.textColor;
-        int textX = x + 3;
-        int textY = y + height / 2 - parentScreen.getTextRenderer().fontHeight / 2 + 1;
-        context.drawText(parentScreen.getTextRenderer(), label, textX, textY, textColor, false);
-    }
-
-    @Override
     public boolean mouseClicked(Click click) {
         if (!isHovered(click.x(), click.y()))return false;
         parentScreen.searchBar.clearSearch();
         parentScreen.setSelectedCategroy(this);
-        Schlib.LOGGER.info(parentScreen.selectedCategory().label);
         return false;
     }
 

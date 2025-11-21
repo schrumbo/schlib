@@ -1,9 +1,12 @@
 package schrumbo.schlib.gui.components.widget;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import schrumbo.schlib.gui.SchlibScreen;
 import schrumbo.schlib.gui.components.category.Category;
+import schrumbo.schlib.gui.theme.Theme;
+import schrumbo.schlib.utils.RenderUtils2D;
 
 /**
  * base class for widgets such as sliders, switches, etc...
@@ -15,6 +18,7 @@ public abstract class Widget {
     protected int y;
     protected int width;
     protected int height = 21;
+    protected int PADDING = (height - MinecraftClient.getInstance().textRenderer.fontHeight) / 2;
     public SchlibScreen parentScreen;
     public Category parentCategory;
 
@@ -29,7 +33,19 @@ public abstract class Widget {
      * @param mouseX
      * @param mouseY
      */
-    public abstract void render(DrawContext context, double mouseX, double mouseY);
+    public void render(DrawContext context, double mouseX, double mouseY){
+        Theme screenTheme = parentScreen.getTheme();
+        int mainColor = screenTheme.windowBackgroundColor;
+        context.fill(x, y, x + width, y + height, mainColor);
+        if (isHovered(mouseX, mouseY)){
+            RenderUtils2D.drawOutline(context, x, y, x + width, y + height, screenTheme.systemGray);
+        }
+
+        int textColor = screenTheme.textColor;
+        int textX = x + PADDING;
+        int textY = y + PADDING + 1;
+        context.drawText(parentScreen.getTextRenderer(), label, textX, textY, textColor, false);
+    }
 
     /**
      * does something if the mouse is dragged

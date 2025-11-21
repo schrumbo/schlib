@@ -4,9 +4,13 @@ import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import schrumbo.schlib.gui.SchlibScreen;
 import schrumbo.schlib.gui.components.widget.Widget;
+import schrumbo.schlib.gui.theme.Theme;
+import schrumbo.schlib.utils.RenderUtils2D;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static schrumbo.schlib.SchlibClient.mc;
 
 public abstract class Category {
     protected String label;
@@ -16,6 +20,7 @@ public abstract class Category {
     protected final int height = 13;
     public SchlibScreen parentScreen;
     protected List<Widget> widgets;
+    protected final int PADDING = 3;
 
     protected Category(Builder<?> builder){
         label = builder.label;
@@ -23,12 +28,34 @@ public abstract class Category {
     }
 
     /**
-     * category rendering goes here
+     * handles basic rendering like label and background
      * @param context
      * @param mouseX
      * @param mouseY
      */
-    public abstract void render(DrawContext context, double mouseX, double mouseY);
+    public void render(DrawContext context, double mouseX, double mouseY){
+        Theme screenTheme = parentScreen.getTheme();
+        int mainColor = isHovered(mouseX, mouseY) ? screenTheme.windowBackgroundColor : screenTheme.gridColor;
+        int selectedColor = screenTheme.windowBackgroundColor;
+        if (parentScreen.selectedCategory() == this){
+            context.fill(x, y, x + width, y + height, selectedColor);
+            RenderUtils2D.drawOutline(context, x, y, x + width, y + height, screenTheme.systemGray);
+        }else{
+            context.fill(x, y, x + width, y + height, mainColor);
+        }
+
+        int textColor =screenTheme.textColor;
+        int textX;
+        if (this instanceof MainCategory){
+            textX = x + 4 * PADDING;
+        }else{
+            textX = x + PADDING;
+        }
+
+        int textY = y + height / 2 - mc.textRenderer.fontHeight / 2 + 1;
+
+        context.drawText(mc.textRenderer, label, textX, textY, textColor, false);
+    }
 
     /**
      * does something if clicked
