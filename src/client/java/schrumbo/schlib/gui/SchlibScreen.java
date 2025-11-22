@@ -1,10 +1,12 @@
 package schrumbo.schlib.gui;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.input.KeyInput;
+import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import schrumbo.schlib.Schlib;
 import schrumbo.schlib.gui.components.category.Category;
@@ -33,6 +35,7 @@ public class SchlibScreen extends Screen {
     public Theme screenTheme;
     private List<MainCategory> categories = new ArrayList<>();
     private List<ScreenWidget> widgets = new ArrayList<>();
+    private Widget hoveredWidget = null;
     private Screen hudEditorScreen;
 
     private Category selectedCategory;
@@ -378,7 +381,7 @@ public class SchlibScreen extends Screen {
         renderScreenWidgets(context, mouseX, mouseY);
         renderCategories(context, mouseX, mouseY);
         renderWidgets(context, mouseX, mouseY);
-        renderMisc(context);
+        renderMisc(context, mouseX, mouseY);
     }
 
     /**
@@ -470,8 +473,35 @@ public class SchlibScreen extends Screen {
         renderTitle(context);
     }
 
-    private void renderMisc(DrawContext context){
+    private void renderMisc(DrawContext context, double mouseX, double mouseY){
         context.fill(MISC_X, CONTENT_Y, MISC_X2, CONTENT_Y2, screenTheme.gridColor);
+        for (var widget : selectedCategory.getWidgets()){
+            if (widget.isHovered(mouseX, mouseY)){
+                hoveredWidget = widget;
+            }
+        }
+        if (hoveredWidget != null){
+            Schlib.LOGGER.info(hoveredWidget.getLabel());
+            String description = hoveredWidget.getDescription();
+            context.drawText(
+                    MinecraftClient.getInstance().textRenderer,
+                    Text.literal("§l" + hoveredWidget.getLabel()),
+                    MISC_X + PADDING,
+                    CONTENT_Y + PADDING,
+                    screenTheme.textColor,
+                    false
+                    );
+            if (description == null || description.isEmpty())return;
+            context.drawWrappedText(
+                    MinecraftClient.getInstance().textRenderer,
+                    StringVisitable.plain(description),
+                    MISC_X + PADDING,
+                    CONTENT_Y + MinecraftClient.getInstance().textRenderer.fontHeight + PADDING,
+                    MISC_WIDTH - PADDING,
+                    screenTheme.textColor,
+                    false
+                    );
+        }
     }
 
 
@@ -542,6 +572,7 @@ public class SchlibScreen extends Screen {
         MISC_X2 = PANEL_X2 - PADDING;
         MISC_WIDTH = PANEL_WIDTH / 4 - PADDING;
         MISC_X = MISC_X2 - MISC_WIDTH;
+
     }
 
 

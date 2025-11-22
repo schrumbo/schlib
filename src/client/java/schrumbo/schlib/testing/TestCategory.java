@@ -17,6 +17,7 @@ public class TestCategory {
                 .range(10, 100)
                 .value(TestCategory::getFloatValue, TestCategory::setFloatValue)
                 .label("SLIDER")
+                .description("Schere Diggi")
                 .build();
 
         Slider groupSlider = Slider.builder()
@@ -36,7 +37,6 @@ public class TestCategory {
                 .addWidget(groupSwitch)
                 .addWidget(groupSlider)
                 .build();
-
 
         Switch testSwitch = Switch.builder()
                 .label("Berlin")
@@ -81,8 +81,6 @@ public class TestCategory {
                 .addWidget(testSwitch2)
                 .build();
 
-
-
         MainCategory generalCategory = MainCategory.builder()
                 .label("General")
                 .addSubCategory(rendering)
@@ -91,7 +89,6 @@ public class TestCategory {
                 .addWidget(furzSwitch)
                 .addWidget(floatSlider)
                 .build();
-
 
         MainCategory hudCategory = MainCategory.builder()
                 .label("HUD")
@@ -106,8 +103,6 @@ public class TestCategory {
                 .addCategory(hudCategory)
                 .build();
     }
-
-
 
     private static boolean testEnabled = false;
     // Getter für andere Klassen

@@ -78,6 +78,8 @@ public abstract class Widget {
      */
     public boolean isHovered(double mouseX, double mouseY){
         return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+
+
     }
 
     /**

@@ -1,5 +1,6 @@
 package schrumbo.schlib.gui.components.widget;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import schrumbo.schlib.Schlib;
@@ -32,12 +33,9 @@ public class Slider extends Widget{
 
     @Override
     public void render(DrawContext context, double mouseX, double mouseY){
-        Theme screenTheme = parentScreen.getTheme();
         calculateSliderDimensions();
         super.render(context, mouseX, mouseY);
         renderSlider(context);
-
-
     }
 
     /**
@@ -56,6 +54,10 @@ public class Slider extends Widget{
             context.fill(sliderX, sliderY, sliderX + fillWidth, sliderY + sliderHeight, screenTheme.systemBlue);
         }
         renderKnob(context, sliderX + fillWidth, sliderY);
+
+        int textY = y + PADDING + 1;
+        int textX = sliderX - MinecraftClient.getInstance().textRenderer.getWidth(formatValue(getter.get())) - 5;
+        context.drawText(MinecraftClient.getInstance().textRenderer, formatValue(getter.get()), textX, textY, screenTheme.textColor, false);
     }
 
     private void renderKnob(DrawContext context, int x, int y){
@@ -114,7 +116,6 @@ public class Slider extends Widget{
         if (Math.abs(getter.get() - newValue) > 0.001f) {
             setter.accept(newValue);
         }
-        Schlib.LOGGER.info(String.valueOf(getter.get()));
     }
 
     /**
@@ -144,11 +145,11 @@ public class Slider extends Widget{
     private String formatValue(float value) {
         float range = max - min;
         if (range <= 1.0f) {
-            return String.format("%.2f%s", value);
+            return String.format("%.2f", value);
         } else if (range <= 10.0f) {
-            return String.format("%.1f%s", value);
+            return String.format("%.1f", value);
         } else {
-            return String.format("%.0f%s", value);
+            return String.format("%.0f", value);
         }
     }
 

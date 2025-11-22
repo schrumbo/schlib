@@ -74,6 +74,7 @@ public abstract class Category {
         return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
     }
 
+
     /**
      * gets the label of a category
      * @return label
