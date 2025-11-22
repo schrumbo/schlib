@@ -141,25 +141,42 @@ public class Group extends Widget{
 
     @Override
     public boolean mouseDragged(Click click, double offsetX, double offsetY) {
+        if (expanded){
+            for (var widget : widgets){
+                if (widget.mouseDragged(click, offsetX, offsetY)) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
-    /**
-     * handles mouse clicks with passthrough to child widgets of the group
-     * @param click
-     * @return
-     */
+    @Override
+    public boolean mouseReleased(Click click) {
+        if (expanded){
+            for (var widget : widgets){
+                if (widget.mouseReleased(click)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean mouseClicked(Click click) {
+        if (expanded) {
+            for (var widget : widgets){
+                if (widget.mouseClicked(click)){
+                    return true;
+                }
+            }
+        }
         if (isHovered(click.x(), click.y())){
             expanded = !expanded;
             return true;
         }
-        for (var widget : widgets){
-            if (widget.mouseClicked(click)){
-                return true;
-            }
-        }
+
         return false;
     }
 

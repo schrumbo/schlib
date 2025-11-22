@@ -6,12 +6,25 @@ import schrumbo.schlib.gui.SchlibScreen;
 import schrumbo.schlib.gui.components.category.MainCategory;
 import schrumbo.schlib.gui.components.category.SubCategory;
 import schrumbo.schlib.gui.components.widget.Group;
+import schrumbo.schlib.gui.components.widget.Slider;
 import schrumbo.schlib.gui.components.widget.Switch;
 
 public class TestCategory {
 
 
     public static  SchlibScreen createScreen() {
+        Slider floatSlider = Slider.builder()
+                .range(10, 100)
+                .value(TestCategory::getFloatValue, TestCategory::setFloatValue)
+                .label("SLIDER")
+                .build();
+
+        Slider groupSlider = Slider.builder()
+                .range(10, 100)
+                .value(TestCategory::getFloatValue, TestCategory::setFloatValue)
+                .label("Hello Slider")
+                .build();
+
         Switch groupSwitch = Switch.builder()
                 .label("Hello World")
                 .value(() -> testEnabled,
@@ -21,6 +34,7 @@ public class TestCategory {
         Group testGroup = Group.builder()
                 .label("Hello Group")
                 .addWidget(groupSwitch)
+                .addWidget(groupSlider)
                 .build();
 
 
@@ -75,6 +89,7 @@ public class TestCategory {
                 .addSubCategory(gameplay)
                 .addWidget(testGroup)
                 .addWidget(furzSwitch)
+                .addWidget(floatSlider)
                 .build();
 
 
@@ -85,7 +100,7 @@ public class TestCategory {
                 .build();
 
         return SchlibScreen.SchlibScreenBuilder
-                .create(Text.literal("schLib by schrumbo"))
+                .create(Text.literal("moin"))
                 .withTheme(SchlibClient.theme)
                 .addCategory(generalCategory)
                 .addCategory(hudCategory)
@@ -98,5 +113,13 @@ public class TestCategory {
     // Getter für andere Klassen
     public static boolean isTestEnabled() {
         return testEnabled;
+    }
+
+    private static float floatValue = 1.0f;
+    private static float getFloatValue(){
+        return floatValue;
+    }
+    private static void setFloatValue(float value){
+        floatValue = value;
     }
 }

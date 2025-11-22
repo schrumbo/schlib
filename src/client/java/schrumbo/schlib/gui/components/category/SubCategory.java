@@ -10,6 +10,7 @@ import schrumbo.schlib.utils.RenderUtils2D;
 import java.util.List;
 
 public class SubCategory extends Category{
+
     protected List<Widget> widgets;
     protected MainCategory parentCategory;
     protected SubCategory(Builder builder){

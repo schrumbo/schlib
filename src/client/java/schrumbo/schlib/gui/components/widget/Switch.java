@@ -35,12 +35,12 @@ public class Switch extends Widget{
     private void renderButton(DrawContext context){
         Theme screenTheme = parentScreen.getTheme();
 
-        int buttonX2 = x + width - PADDING;
+        int buttonX2 = x + width - clickablePadding;
         int buttonX = buttonX2 - buttonWidth;
         int buttonY = y + height / 2 - buttonHeight / 2;
         int buttonY2 = buttonY + buttonHeight;
 
-        int buttonBackgroundColor = getter.get() ? screenTheme.systemTeal : screenTheme.systemGray;
+        int buttonBackgroundColor = getter.get() ? screenTheme.systemBlue : screenTheme.systemGray;
         context.fill(buttonX, buttonY, buttonX2, buttonY2, buttonBackgroundColor);
 
         int enabledX2 = buttonX2 - 1;
@@ -56,9 +56,25 @@ public class Switch extends Widget{
         }
     }
 
-
+    /**
+     * dont need
+     * @param click
+     * @param offsetX
+     * @param offsetY
+     * @return
+     */
     @Override
     public boolean mouseDragged(Click click, double offsetX, double offsetY) {
+        return false;
+    }
+
+    /**
+     * dont need
+     * @param click
+     * @return
+     */
+    @Override
+    public boolean mouseReleased(Click click) {
         return false;
     }
 

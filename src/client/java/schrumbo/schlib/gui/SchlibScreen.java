@@ -427,12 +427,31 @@ public class SchlibScreen extends Screen {
         return false;
     }
 
-    //TODO
     @Override
     public boolean mouseDragged(Click click, double offsetX, double offsetY){
-        return false;
+        if (click.button() != 0) return super.mouseDragged(click, offsetX, offsetY);
+
+        if (selectedCategory != null && isInWidgetArea(click)){
+            for (var widget : selectedCategory.getWidgets()){
+                if (widget.mouseDragged(click, offsetX, offsetY)){
+                    return true;
+                }
+            }
+        }
+        return super.mouseDragged(click, offsetX, offsetY);
     }
 
+    @Override
+    public boolean mouseReleased(Click click){
+        if (selectedCategory != null && isInWidgetArea(click)){
+            for (var widget : selectedCategory.getWidgets()){
+                if (widget.mouseReleased(click)){
+                    return true;
+                }
+            }
+        }
+        return super.mouseReleased(click);
+    }
 
 
     /**
@@ -501,7 +520,7 @@ public class SchlibScreen extends Screen {
 
         //category area dimensions
         CATEGORIES_X = PANEL_X + PADDING;
-        CATEGORIES_WIDTH = PANEL_WIDTH / 4 - 2 * PADDING;
+        CATEGORIES_WIDTH = PANEL_WIDTH / 4 - PADDING;
         CATEGORIES_X2 = CATEGORIES_X + CATEGORIES_WIDTH;
 
         //category widget positions
@@ -510,7 +529,7 @@ public class SchlibScreen extends Screen {
         CATEGORY_WIDTH = (CATEGORIES_X2 - PADDING) - (CATEGORIES_X + PADDING);
 
         //widget area dimensions
-        WIDGETS_WIDTH = PANEL_WIDTH / 2 - PADDING;
+        WIDGETS_WIDTH = PANEL_WIDTH / 2 - 2 * PADDING;
         WIDGETS_X = CATEGORIES_X2 + PADDING;
         WIDGETS_X2 = WIDGETS_X + WIDGETS_WIDTH;
 

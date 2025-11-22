@@ -19,6 +19,7 @@ public abstract class Widget {
     protected int width;
     protected int height = 21;
     protected int PADDING = (height - MinecraftClient.getInstance().textRenderer.fontHeight) / 2;
+    protected int clickablePadding = height / 3;
     public SchlibScreen parentScreen;
     public Category parentCategory;
 
@@ -55,6 +56,13 @@ public abstract class Widget {
      * @return
      */
     public abstract boolean mouseDragged(Click click, double offsetX, double offsetY);
+
+    /**
+     * checks if the mouse is released
+     * @param click
+     * @return
+     */
+    public abstract  boolean mouseReleased(Click click);
 
     /**
      * does something if click is registered
